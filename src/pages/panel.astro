@@ -1,0 +1,115 @@
+---
+import "../styles/global.css";
+import Sidebar from "../components/Sidebar.astro";
+import {
+  UsersGroupRoundedIcon,
+  Book2Icon,
+  DocumentTextIcon,
+  ClapperboardPlayIcon,
+  ArrowRightIcon,
+} from "@solar-icons/react/outline";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Panel del Observatorio de Responsabilidad Social y Sostenibilidad"
+    />
+    <title>Observatorio · Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..900&family=Geist+Mono:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-[#fbfbfa] text-[#0a0a0a]">
+    <div class="flex min-h-svh">
+      <Sidebar active="Inicio" />
+
+      <div class="flex-1 flex flex-col min-w-0 bg-[#f7f6f3]">
+        <!-- Contenido principal -->
+        <main class="flex-1 p-[clamp(1.5rem,4vw,3rem)]">
+          <div class="max-w-6xl mx-auto flex flex-col gap-8">
+            <!-- Encabezado de bienvenida -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <p
+                  class="m-0 mb-1.5 text-[#0064c1] text-[0.78rem] font-semibold tracking-[0.14em] uppercase"
+                >
+                  Plataforma Observatorio
+                </p>
+                <h1
+                  class="m-0 text-[clamp(2rem,3.5vw,2.8rem)] font-bold leading-[1.05] tracking-[-0.04em] text-[#0a0a0a]"
+                >
+                  Panel de Control
+                </h1>
+                <p
+                  class="mt-2 text-[#787774] text-base leading-relaxed max-w-[60ch]"
+                >
+                  Bienvenido al Observatorio de Responsabilidad Social y Sostenibilidad. Explora los recursos, publicaciones e investigaciones.
+                </p>
+              </div>
+
+              <a
+                href="#"
+                class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-white text-sm font-semibold tracking-[-0.01em] whitespace-nowrap cursor-pointer overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:brightness-[1.04] active:translate-y-0 active:scale-[0.985]"
+                style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 8px 22px -6px rgba(58,138,244,0.4), 0 6px 32px -2px rgba(120,185,255,0.58); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+              >
+                <span class="relative z-10">Nuevo registro</span>
+                <ArrowRightIcon size={16} strokeWidth={2} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
+              </a>
+            </div>
+
+            <!-- Métricas / Tarjetas rápidas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="p-5 rounded-2xl bg-white border border-[#0000000f] flex flex-col gap-3 transition-all duration-300 hover:border-[#0064c1]/30 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-8px_rgba(0,100,193,0.12)]">
+                <div class="w-10 h-10 rounded-xl bg-[#0064c1]/10 text-[#0064c1] grid place-items-center">
+                  <Book2Icon size={22} strokeWidth={1.7} />
+                </div>
+                <div>
+                  <span class="text-xs font-semibold tracking-[0.08em] uppercase text-[#787774]">Repositorio</span>
+                  <p class="m-0 text-2xl font-bold tracking-tight text-[#0a0a0a]">48 items</p>
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white border border-[#0000000f] flex flex-col gap-3 transition-all duration-300 hover:border-[#0064c1]/30 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-8px_rgba(0,100,193,0.12)]">
+                <div class="w-10 h-10 rounded-xl bg-[#0064c1]/10 text-[#0064c1] grid place-items-center">
+                  <UsersGroupRoundedIcon size={22} strokeWidth={1.7} />
+                </div>
+                <div>
+                  <span class="text-xs font-semibold tracking-[0.08em] uppercase text-[#787774]">Red Aprendizaje</span>
+                  <p class="m-0 text-2xl font-bold tracking-tight text-[#0a0a0a]">1,280 miembros</p>
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white border border-[#0000000f] flex flex-col gap-3 transition-all duration-300 hover:border-[#0064c1]/30 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-8px_rgba(0,100,193,0.12)]">
+                <div class="w-10 h-10 rounded-xl bg-[#0064c1]/10 text-[#0064c1] grid place-items-center">
+                  <DocumentTextIcon size={22} strokeWidth={1.7} />
+                </div>
+                <div>
+                  <span class="text-xs font-semibold tracking-[0.08em] uppercase text-[#787774]">Publicaciones</span>
+                  <p class="m-0 text-2xl font-bold tracking-tight text-[#0a0a0a]">12 nuevas</p>
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white border border-[#0000000f] flex flex-col gap-3 transition-all duration-300 hover:border-[#0064c1]/30 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_-8px_rgba(0,100,193,0.12)]">
+                <div class="w-10 h-10 rounded-xl bg-[#0064c1]/10 text-[#0064c1] grid place-items-center">
+                  <ClapperboardPlayIcon size={22} strokeWidth={1.7} />
+                </div>
+                <div>
+                  <span class="text-xs font-semibold tracking-[0.08em] uppercase text-[#787774]">Videos & Talleres</span>
+                  <p class="m-0 text-2xl font-bold tracking-tight text-[#0a0a0a]">6 disponibles</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

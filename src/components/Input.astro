@@ -1,0 +1,55 @@
+---
+import {
+  fieldControl,
+  fieldControlFocusWithin,
+  fieldLabel,
+  fieldLabelIcon,
+} from "./fieldClasses";
+
+interface Props {
+  name: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
+  autocomplete?: string;
+  inputmode?: string;
+  min?: string | number;
+  max?: string | number;
+  required?: boolean;
+  icon?: any;
+}
+
+const {
+  name,
+  label,
+  type = "text",
+  placeholder,
+  autocomplete,
+  inputmode,
+  min,
+  max,
+  required = false,
+  icon: Icon,
+} = Astro.props;
+---
+
+<div class="group/field flex flex-col gap-2">
+  <label for={name} class={fieldLabel}>
+    {Icon && <Icon size={18} strokeWidth={1.5} className={fieldLabelIcon} />}
+    {label}
+  </label>
+  <div class:list={[fieldControl, fieldControlFocusWithin]}>
+    <input
+      id={name}
+      name={name}
+      type={type}
+      placeholder={placeholder}
+      autocomplete={autocomplete}
+      inputmode={inputmode}
+      min={min}
+      max={max}
+      required={required}
+      class="w-full bg-transparent px-4 py-3.5 text-base text-[#0a0a0a] outline-none placeholder:text-[#787774]/70 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+    />
+  </div>
+</div>
