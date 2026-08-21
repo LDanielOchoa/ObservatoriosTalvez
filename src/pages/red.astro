@@ -1,0 +1,40 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import FormToasts from "../components/FormToasts.tsx";
+import { EncabezadoRed, FormularioRegistroRed } from "../modules/red-aprendizaje";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Únete a la Red de aprendizaje del Observatorio de Responsabilidad Social y Sostenibilidad"
+    />
+    <title>Observatorio · Red de aprendizaje</title>
+    <ClientRouter />
+  </head>
+  <body class="bg-[#fbfbfa] text-[#0a0a0a]">
+    <main
+      class="w-full min-h-svh flex items-center justify-center px-[clamp(1.25rem,4vw,2rem)] py-[clamp(2rem,5vh,4rem)]"
+    >
+      <div class="w-full max-w-[26rem] flex flex-col gap-6">
+        <!-- Encabezado del Dominio Red de Aprendizaje -->
+        <EncabezadoRed />
+
+        <!-- Formulario del Dominio Red de Aprendizaje -->
+        <FormularioRegistroRed />
+      </div>
+
+      <FormToasts
+        client:load
+        formId="form-register"
+        successTitle="Registro exitoso"
+        successDescription="Ya haces parte de la red de aprendizaje."
+      />
+    </main>
+  </body>
+</html>

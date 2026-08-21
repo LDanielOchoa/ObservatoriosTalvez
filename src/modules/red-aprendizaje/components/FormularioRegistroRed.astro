@@ -1,0 +1,134 @@
+---
+import CustomSelect from "../../../components/CustomSelect.astro";
+import Input from "../../../components/Input.astro";
+import { mesesOpciones, semestresOpciones } from "../constants/opciones-fecha";
+import {
+  UserIcon,
+  CardIcon,
+  PhoneIcon,
+  CalendarIcon,
+  BookIcon,
+  ArrowRightIcon,
+} from "@solar-icons/react/outline";
+---
+
+<form
+  id="form-register"
+  class="flex flex-col gap-4 w-full animate-rise"
+  style="animation-delay: 0.2s"
+  action="#"
+  method="post"
+>
+  <Input
+    name="nombre"
+    label="Nombre completo"
+    placeholder="Tu nombre completo"
+    autocomplete="name"
+    icon={UserIcon}
+    required
+  />
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <Input
+      name="cedula"
+      label="Cédula"
+      inputmode="numeric"
+      placeholder="0000000000"
+      icon={CardIcon}
+      required
+    />
+    <Input
+      name="telefono"
+      label="Teléfono"
+      type="tel"
+      placeholder="300 123 4567"
+      autocomplete="tel"
+      icon={PhoneIcon}
+      required
+    />
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <span
+      class="flex items-center gap-2 text-[#0a0a0a] text-sm font-[560] tracking-[-0.01em]"
+    >
+      <CalendarIcon
+        size={18}
+        strokeWidth={1.5}
+        className="text-[#0064c1]"
+      />
+      Fecha de nacimiento
+    </span>
+    <div class="grid grid-cols-[1fr_1.4fr_1fr] gap-3">
+      <Input
+        name="dia"
+        label="Día"
+        type="number"
+        placeholder="Día"
+        min="1"
+        max="31"
+        required
+      />
+      <CustomSelect
+        name="mes"
+        label="Mes"
+        placeholder="Mes"
+        options={mesesOpciones}
+        required
+      />
+      <Input
+        name="anio"
+        label="Año"
+        type="number"
+        placeholder="Año"
+        min="1950"
+        max="2010"
+        required
+      />
+    </div>
+  </div>
+
+  <Input
+    name="universidad"
+    label="Universidad"
+    placeholder="Nombre de tu universidad"
+    icon={BookIcon}
+    required
+  />
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <CustomSelect
+      name="semestre"
+      label="Semestre"
+      placeholder="Selecciona"
+      options={semestresOpciones}
+      required
+    />
+    <Input
+      name="carrera"
+      label="Carrera"
+      placeholder="Tu carrera"
+      required
+    />
+  </div>
+
+  <button
+    type="submit"
+    class="group relative w-full inline-flex items-center justify-center gap-2 mt-2 px-8 py-4 rounded-full text-white text-base font-semibold tracking-[-0.01em] whitespace-nowrap cursor-pointer overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.985] focus-visible:outline-2 focus-visible:outline-[#0064c1] focus-visible:outline-offset-[3px]"
+    style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 8px 22px -6px rgba(58,138,244,0.4), 0 6px 32px -2px rgba(120,185,255,0.58); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+  >
+    <span class="relative z-10">Unirme a la red</span>
+    <ArrowRightIcon
+      size={18}
+      strokeWidth={2}
+      className="relative z-10 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+    />
+  </button>
+
+  <a
+    href="/"
+    class="relative w-fit mx-auto text-[#0064c1] text-sm font-medium no-underline transition-colors hover:text-[#0f2fe8] after:absolute after:left-0 after:bottom-[-2px] after:w-full after:h-px after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
+  >
+    Volver al acceso
+  </a>
+</form>

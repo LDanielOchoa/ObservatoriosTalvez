@@ -16,7 +16,7 @@ const { intensity = "full" } = Astro.props;
     style="background: radial-gradient(90% 70% at 78% 12%, #6cb6f5 0%, transparent 55%), radial-gradient(70% 48% at 20% 7%, rgba(255,255,255,0.38), transparent 58%), linear-gradient(180deg, #2e90e8 0%, #74b8f2 42%, #d8ecfb 74%, #fbfbfa 100%)"
   ></div>
   <canvas
-    class="absolute inset-0 w-full h-full scale-[1.03] blur-[1.2px] opacity-0 transition-opacity duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] data-[ready]:opacity-100"
+    class="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] data-[ready]:opacity-100"
     data-canvas
     aria-hidden="true"></canvas>
   <div
@@ -105,7 +105,7 @@ const { intensity = "full" } = Astro.props;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const intensity = root.dataset.intensity === "soft" ? 0.55 : 1;
-    const resolutionScale = 0.9;
+    const resolutionScale = 0.66;
 
     const compile = (type: number, src: string) => {
       const shader = gl.createShader(type);
@@ -172,8 +172,8 @@ const { intensity = "full" } = Astro.props;
     ).observe(root);
 
     const BASE_SPEED = 1;
-    const MAX_SPEED = 11;
-    const SPEED_FACTOR = 1.9;
+    const MAX_SPEED = 6;
+    const SPEED_FACTOR = 1.2;
     const EASE = 0.08;
     const DECAY = 0.92;
     const START_TIME = 45;

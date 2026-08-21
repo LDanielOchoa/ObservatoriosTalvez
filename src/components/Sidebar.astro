@@ -1,29 +1,36 @@
 ---
-import SkyShader from "./SkyShader.astro";
 import {
-  Home2Icon,
-  Book2Icon,
+  HomeIcon,
+  LibraryIcon,
   UsersGroupRoundedIcon,
-  DocumentTextIcon,
-  ClapperboardPlayIcon,
-  UserIcon,
+  NotesIcon,
+  VideocameraIcon,
+  UsersGroupTwoRoundedIcon,
   FolderWithFilesIcon,
-  LayersMinimalisticIcon,
-  HelpIcon,
+  ChatSquareIcon,
+  HeadphonesRoundIcon,
   SettingsIcon,
+  AltArrowLeftIcon,
+  AltArrowDownIcon,
+  LetterIcon,
+  UserPlusIcon,
 } from "@solar-icons/react/outline";
 
-interface ElementoNav {
-  etiqueta: string;
+interface SubItem {
   href: string;
-  badge?: number;
-  chip?: string;
-  icono: any;
+  label: string;
+  badge?: string;
+  badgeType?: "count" | "new";
+  icon?: any;
 }
 
-interface SeccionNav {
-  titulo: string;
-  items: ElementoNav[];
+interface Item {
+  href?: string;
+  label: string;
+  icon: any;
+  badge?: string;
+  badgeType?: "count" | "new";
+  subItems?: SubItem[];
 }
 
 interface Props {
@@ -32,211 +39,406 @@ interface Props {
 
 const { active = "Inicio" } = Astro.props;
 
-const secciones: SeccionNav[] = [
-  {
-    titulo: "Explorar",
-    items: [
-      { etiqueta: "Inicio", href: "#", icono: Home2Icon },
-      { etiqueta: "Repositorio", href: "#", badge: 48, icono: Book2Icon },
-      { etiqueta: "Red de aprendizaje", href: "#", chip: "Nuevo", icono: UsersGroupRoundedIcon },
-      { etiqueta: "News Feed", href: "#", badge: 12, icono: DocumentTextIcon },
-      { etiqueta: "Youtube Feed", href: "#", badge: 6, icono: ClapperboardPlayIcon },
-    ],
-  },
-  {
-    titulo: "Administración",
-    items: [
-      { etiqueta: "Usuarios", href: "#", icono: UserIcon },
-      { etiqueta: "Contenido Repositorios", href: "#", icono: FolderWithFilesIcon },
-      { etiqueta: "Contenido Feed", href: "#", icono: LayersMinimalisticIcon },
-    ],
-  },
+const explorar: Item[] = [
+  { href: "/dashboard", label: "Inicio", icon: HomeIcon },
+  { href: "/dashboard/repositorio", label: "Repositorio", icon: LibraryIcon, badge: "48" },
+  { href: "/dashboard/news", label: "News Feed", icon: NotesIcon, badge: "3" },
+  { href: "/dashboard/youtube", label: "Youtube Feed", icon: VideocameraIcon, badge: "1" },
 ];
 
-const itemsInferiores: ElementoNav[] = [
-  { etiqueta: "Soporte", href: "#", icono: HelpIcon },
-  { etiqueta: "Ajustes", href: "#", icono: SettingsIcon },
+const administracion: Item[] = [
+  { href: "/dashboard/usuarios", label: "Usuarios", icon: UsersGroupTwoRoundedIcon },
+  {
+    label: "Red de aprendizaje",
+    icon: UsersGroupRoundedIcon,
+    subItems: [
+      {
+        href: "/dashboard/red-aprendizaje",
+        label: "Usuarios Nuevos",
+        icon: UserPlusIcon,
+        badge: "8",
+        badgeType: "count",
+      },
+      {
+        href: "/dashboard/red-aprendizaje/correo",
+        label: "Correo",
+        icon: LetterIcon,
+      },
+    ],
+  },
+  { href: "#", label: "Contenido Repositorios", icon: FolderWithFilesIcon },
+  {
+    href: "/dashboard/contenido-feed",
+    label: "Contenido Feed",
+    icon: ChatSquareIcon,
+    badge: "4",
+    badgeType: "count",
+  },
+  { href: "#", label: "Soporte", icon: HeadphonesRoundIcon },
+  { href: "#", label: "Ajustes", icon: SettingsIcon },
 ];
 ---
 
 <aside
-  id="sidebar"
-  class="sticky top-0 z-40 w-72 h-svh shrink-0 flex flex-col bg-[#fbfbfa] border-r border-[#0000000f] select-none"
-  aria-label="Navegación principal"
+  id="main-sidebar"
+  data-collapsed="false"
+  class="group/sidebar sticky top-0 flex h-svh w-[17.5rem] data-[collapsed=true]:w-[4.85rem] shrink-0 flex-col justify-between border-r border-black/[0.07] bg-[#fbfbfa]/95 backdrop-blur-md px-3 py-5 select-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-40"
 >
-  <!-- Encabezado con Logo oficial y Branding como en index.astro -->
-  <div class="px-5 pt-5 pb-3 flex flex-col gap-3">
-    <div class="flex items-center gap-3">
-      <img
-        src="/Group 19.svg"
-        alt="Logo Observatorio de Responsabilidad Social y Sostenibilidad"
-        class="h-10 w-auto object-contain transition-transform duration-300 hover:scale-[1.03]"
-      />
-      <div class="flex flex-col min-w-0">
-        <span class="text-[0.66rem] font-semibold tracking-[0.14em] uppercase text-[#0064c1]">
-          Observatorio
-        </span>
-        <span class="text-[0.88rem] font-bold text-[#0a0a0a] tracking-[-0.02em] truncate leading-tight">
-          RS &amp; Sostenibilidad
-        </span>
-      </div>
-    </div>
-  </div>
+  <!-- Botón toggle tipo flecha en el borde derecho -->
+  <button
+    type="button"
+    id="toggle-sidebar-btn"
+    class="absolute -right-3.5 top-7 z-50 grid h-7 w-7 place-items-center rounded-full bg-white border border-black/10 text-[#787774] shadow-[0_4px_12px_-2px_rgba(0,0,0,0.12)] transition-all duration-200 hover:text-[#0064c1] hover:scale-110 hover:border-[#0064c1]/40 active:scale-95 cursor-pointer"
+    aria-label="Contraer o expandir barra lateral"
+    title="Contraer / Expandir"
+  >
+    <AltArrowLeftIcon
+      size={16}
+      strokeWidth={2.2}
+      className="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-data-[collapsed=true]/sidebar:rotate-180 text-[#2f3437] group-hover:text-[#0064c1]"
+    />
+  </button>
 
-  <!-- Tarjeta de arte encapsulada (Idéntica a la tarjeta izquierda de index.astro) -->
-  <div class="px-3 pb-2">
-    <div
-      class="relative overflow-hidden h-24 bg-[#cfe6fb] rounded-[18px] shadow-[inset_0_1px_2px_rgba(255,255,255,0.7)] transition-transform duration-300 hover:scale-[1.01]"
-    >
-      <SkyShader intensity="soft" />
-
-      <!-- Grid decorativo de líneas blueprint -->
-      <div
-        class="absolute inset-0 grid grid-cols-4 grid-rows-2 opacity-15 pointer-events-none"
+  <div class="flex flex-col gap-6 overflow-hidden">
+    <!-- Encabezado con Logo ampliado y centrado -->
+    <div class="flex items-center justify-center px-1 pt-1 h-12">
+      <a
+        href="/"
+        class="group/logo flex items-center justify-center no-underline overflow-hidden shrink-0"
+        aria-label="Volver al inicio"
       >
-        {Array.from({ length: 8 }).map(() => (
-          <span class="border border-white/60" />
-        ))}
-      </div>
-
-      <!-- Watermark decorativo -->
-      <p
-        class="absolute left-1 bottom-[-0.6rem] m-0 select-none pointer-events-none whitespace-nowrap text-[#1f5db4] opacity-[0.08] text-[2.6rem] font-bold leading-[0.8] tracking-[-0.06em]"
-        aria-hidden="true"
-      >
-        Observatorio
-      </p>
-
-      <!-- Contenido de la tarjeta -->
-      <div class="absolute z-10 left-3.5 right-3.5 bottom-2.5 flex flex-col">
-        <p class="m-0 text-[#0064c1] text-[0.62rem] font-bold tracking-[0.14em] uppercase">
-          Plataforma
-        </p>
-        <p class="m-0 text-[#0a0a0a] text-xs font-semibold tracking-[-0.02em] leading-tight mix-blend-multiply opacity-90">
-          Red de Aprendizaje
-        </p>
-      </div>
+        <img
+          src="/Group 19.svg"
+          alt="Logo Observatorio"
+          class="h-11 w-auto max-w-[12rem] object-contain transition-transform duration-300 group-hover/logo:scale-105 shrink-0"
+        />
+      </a>
     </div>
-  </div>
 
-  <!-- Navegación de secciones -->
-  <nav class="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-4">
-    {
-      secciones.map((seccion) => (
-        <div class="flex flex-col gap-1">
-          <p class="px-3 mb-1 text-[0.68rem] font-semibold tracking-[0.14em] uppercase text-[#787774]">
-            {seccion.titulo}
-          </p>
-          <ul class="list-none m-0 p-0 flex flex-col gap-0.5">
-            {seccion.items.map((item) => {
-              const esActivo = item.etiqueta === active;
-              const Icono = item.icono;
-
-              return (
-                <li>
-                  <a
-                    href={item.href}
-                    aria-current={esActivo ? "page" : undefined}
-                    class:list={[
-                      "group relative flex items-center justify-between px-3 py-2 rounded-xl text-[0.92rem] tracking-[-0.01em] no-underline transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                      esActivo
-                        ? "bg-[#0064c1]/10 text-[#0064c1] font-semibold shadow-[inset_0_0_0_1px_rgba(0,100,193,0.14)]"
-                        : "text-[#2f3437] font-medium hover:bg-[#f1f0ec] hover:text-[#0a0a0a] hover:translate-x-0.5 active:scale-[0.985]"
-                    ]}
-                  >
-                    <!-- Indicador lateral activo -->
-                    {esActivo && (
-                      <span class="absolute left-0 top-2 bottom-2 w-1 bg-[#0064c1] rounded-r-full shadow-[0_0_8px_rgba(0,100,193,0.5)]" />
-                    )}
-
-                    <div class="flex items-center gap-2.5 min-w-0">
-                      <Icono
-                        size={18}
-                        strokeWidth={esActivo ? 2 : 1.6}
-                        className={esActivo ? "text-[#0064c1] shrink-0" : "text-[#787774] group-hover:text-[#0a0a0a] transition-colors shrink-0"}
-                      />
-                      <span class="truncate">{item.etiqueta}</span>
-                    </div>
-
-                    <div class="flex items-center gap-1.5 shrink-0 ml-2">
-                      {item.chip && (
-                        <span
-                          class="px-2 py-0.5 rounded-full text-white text-[0.66rem] font-semibold leading-tight shadow-sm"
-                          style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), 0 2px 8px -1px rgba(58,138,244,0.45); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
-                        >
-                          {item.chip}
-                        </span>
-                      )}
-
-                      {item.badge != null && (
-                        <span
-                          class:list={[
-                            "min-w-5 px-1.5 py-0.5 rounded-md text-center text-[0.7rem] font-medium font-mono leading-none",
-                            esActivo
-                              ? "bg-[#0064c1]/15 text-[#0064c1]"
-                              : "bg-[#0000000a] text-[#787774] group-hover:bg-[#00000012] group-hover:text-[#0a0a0a]"
-                          ]}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))
-    }
-  </nav>
-
-  <!-- Items inferiores (Soporte / Ajustes) -->
-  <div class="px-3 pt-2 pb-1 border-t border-[#0000000a]">
-    <ul class="list-none m-0 p-0 flex flex-col gap-0.5">
-      {
-        itemsInferiores.map((item) => {
-          const Icono = item.icono;
-          return (
-            <li>
+    <!-- Navegación principal -->
+    <nav class="flex flex-1 flex-col gap-5 overflow-y-auto overscroll-contain pr-0.5 custom-scrollbar">
+      <!-- Sección Explorar -->
+      <div class="flex flex-col gap-1">
+        <p
+          class="m-0 mb-1 px-3 text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[#787774] whitespace-nowrap transition-opacity duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:h-0 group-data-[collapsed=true]/sidebar:mb-0 group-data-[collapsed=true]/sidebar:overflow-hidden"
+        >
+          Explorar
+        </p>
+        {
+          explorar.map(({ icon: Icon, ...item }) => {
+            const esActivo = active === item.label;
+            return (
               <a
                 href={item.href}
-                class="group flex items-center gap-2.5 px-3 py-2 rounded-xl text-[0.92rem] font-medium tracking-[-0.01em] no-underline text-[#787774] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[#f1f0ec] hover:text-[#0a0a0a] hover:translate-x-0.5 active:scale-[0.985]"
+                title={item.label}
+                class:list={[
+                  "group relative flex items-center h-11 px-1.5 rounded-2xl text-sm font-medium tracking-[-0.01em] no-underline transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
+                  esActivo
+                    ? "bg-white text-[#0064c1] font-semibold border border-white/80 shadow-[0_4px_16px_-4px_rgba(9,60,120,0.12),0_1px_2px_rgba(0,0,0,0.04)]"
+                    : "text-[#2f3437] hover:bg-black/[0.04] hover:text-[#0a0a0a] active:scale-[0.985]",
+                ]}
               >
-                <Icono
-                  size={18}
-                  strokeWidth={1.6}
-                  className="text-[#787774] group-hover:text-[#0a0a0a] transition-colors shrink-0"
-                />
-                <span class="truncate">{item.etiqueta}</span>
+                <!-- Contenedor fijo de ícono con posición fija absoluta izquierda -->
+                <div class="grid h-10 w-10 shrink-0 place-items-center">
+                  <Icon
+                    size={20}
+                    strokeWidth={esActivo ? 2 : 1.5}
+                    class:list={[
+                      "shrink-0 transition-colors duration-200",
+                      esActivo ? "text-[#0064c1]" : "text-[#787774] group-hover:text-[#0a0a0a]",
+                    ]}
+                  />
+                </div>
+
+                <span class="truncate whitespace-nowrap ml-1.5 transition-all duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:w-0 group-data-[collapsed=true]/sidebar:invisible">
+                  {item.label}
+                </span>
+
+                {item.badge && item.badgeType === "new" && (
+                  <span
+                    class="ml-auto mr-1.5 px-2 py-0.5 rounded-full text-white text-[0.66rem] font-semibold leading-tight shadow-sm shrink-0 whitespace-nowrap transition-all duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:w-0 group-data-[collapsed=true]/sidebar:p-0 group-data-[collapsed=true]/sidebar:overflow-hidden"
+                    style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), 0 2px 8px -1px rgba(58,138,244,0.45); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+                  >
+                    {item.badge}
+                  </span>
+                )}
+
+                {item.badge && item.badgeType !== "new" && (
+                  <span
+                    class:list={[
+                      "ml-auto mr-1.5 px-2 py-0.5 rounded-full text-[0.7rem] font-semibold leading-tight font-mono shrink-0 whitespace-nowrap transition-all duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:w-0 group-data-[collapsed=true]/sidebar:p-0 group-data-[collapsed=true]/sidebar:overflow-hidden",
+                      esActivo
+                        ? "bg-[#0064c1]/10 text-[#0064c1]"
+                        : "bg-black/[0.05] text-[#787774] group-hover:bg-black/[0.08] group-hover:text-[#0a0a0a]",
+                    ]}
+                  >
+                    {item.badge}
+                  </span>
+                )}
               </a>
-            </li>
-          );
-        })
-      }
-    </ul>
+            );
+          })
+        }
+      </div>
+
+      <!-- Sección Administración -->
+      <div class="flex flex-col gap-1">
+        <p
+          class="m-0 mb-1 px-3 text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[#787774] whitespace-nowrap transition-opacity duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:h-0 group-data-[collapsed=true]/sidebar:mb-0 group-data-[collapsed=true]/sidebar:overflow-hidden"
+        >
+          Administración
+        </p>
+        {
+          administracion.map(({ icon: Icon, subItems, ...item }) => {
+            if (subItems && subItems.length > 0) {
+              const tieneHijoActivo = subItems.some((s) => s.label === active);
+              const esPadreActivo = active === item.label || tieneHijoActivo;
+
+              return (
+                <div
+                  class="group/collapsible flex flex-col transition-all duration-200"
+                  data-collapsible
+                  data-open={esPadreActivo ? "true" : "false"}
+                >
+                  <button
+                    type="button"
+                    class:list={[
+                      "w-full group relative flex items-center h-11 px-1.5 rounded-2xl text-sm font-medium tracking-[-0.01em] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden cursor-pointer select-none border-none text-left bg-transparent",
+                      esPadreActivo
+                        ? "bg-white/80 text-[#0064c1] font-semibold border border-white/80 shadow-[0_2px_10px_-3px_rgba(9,60,120,0.08)]"
+                        : "text-[#2f3437] hover:bg-black/[0.04] hover:text-[#0a0a0a]",
+                    ]}
+                    data-collapsible-trigger
+                  >
+                    <div class="grid h-10 w-10 shrink-0 place-items-center">
+                      <Icon
+                        size={20}
+                        strokeWidth={esPadreActivo ? 2 : 1.5}
+                        class:list={[
+                          "shrink-0 transition-colors duration-200",
+                          esPadreActivo ? "text-[#0064c1]" : "text-[#787774] group-hover:text-[#0a0a0a]",
+                        ]}
+                      />
+                    </div>
+
+                    <span class="truncate whitespace-nowrap ml-1.5 transition-all duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:w-0 group-data-[collapsed=true]/sidebar:invisible">
+                      {item.label}
+                    </span>
+
+                    <AltArrowDownIcon
+                      size={14}
+                      strokeWidth={2.2}
+                      className="ml-auto mr-1.5 text-[#787774] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-data-[open=true]/collapsible:rotate-180 group-data-[collapsed=true]/sidebar:hidden shrink-0"
+                    />
+                  </button>
+
+                  <!-- Sub-opciones desplegables con animación suave de apertura y cierre -->
+                  <div
+                    class="collapsible-content overflow-hidden transition-[height,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-data-[collapsed=true]/sidebar:hidden"
+                    style={esPadreActivo ? "" : "height: 0px; opacity: 0;"}
+                  >
+                    <div class="flex flex-col gap-1 pl-2.5 pr-1 pt-1.5 pb-1 ml-4 my-0.5 border-l-2 border-slate-200/80">
+                      {subItems.map((sub) => {
+                        const esSubActivo = active === sub.label;
+                        const SubIcon = sub.icon;
+                        return (
+                          <a
+                            href={sub.href}
+                            class:list={[
+                              "group/sub flex items-center h-10 px-2 rounded-xl text-xs font-medium no-underline transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                              esSubActivo
+                                ? "bg-white text-[#0064c1] font-bold shadow-[0_2px_8px_-2px_rgba(9,60,120,0.12)] border border-white/90"
+                                : "text-[#4b5563] hover:bg-black/[0.04] hover:text-[#0a0a0a]",
+                            ]}
+                          >
+                            {SubIcon && (
+                              <div class="grid h-6 w-6 shrink-0 place-items-center mr-2">
+                                <SubIcon
+                                  size={16}
+                                  strokeWidth={esSubActivo ? 2 : 1.5}
+                                  class:list={[
+                                    "shrink-0 transition-colors duration-200",
+                                    esSubActivo ? "text-[#0064c1]" : "text-[#787774] group-hover/sub:text-[#0a0a0a]",
+                                  ]}
+                                />
+                              </div>
+                            )}
+                            <span class="truncate">{sub.label}</span>
+
+                            {sub.badge && (
+                              <span
+                                class:list={[
+                                  "ml-auto px-2 py-0.5 rounded-full text-[0.68rem] font-bold font-mono shrink-0 transition-colors",
+                                  esSubActivo
+                                    ? "bg-[#0064c1]/10 text-[#0064c1]"
+                                    : "bg-black/[0.05] text-[#787774]",
+                                ]}
+                              >
+                                {sub.badge}
+                              </span>
+                            )}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            const esActivo = active === item.label;
+            return (
+              <a
+                href={item.href}
+                title={item.label}
+                class:list={[
+                  "group relative flex items-center h-11 px-1.5 rounded-2xl text-sm font-medium tracking-[-0.01em] no-underline transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
+                  esActivo
+                    ? "bg-white text-[#0064c1] font-semibold border border-white/80 shadow-[0_4px_16px_-4px_rgba(9,60,120,0.12),0_1px_2px_rgba(0,0,0,0.04)]"
+                    : "text-[#2f3437] hover:bg-black/[0.04] hover:text-[#0a0a0a] active:scale-[0.985]",
+                ]}
+              >
+                <!-- Contenedor fijo de ícono con posición fija absoluta izquierda -->
+                <div class="grid h-10 w-10 shrink-0 place-items-center">
+                  <Icon
+                    size={20}
+                    strokeWidth={esActivo ? 2 : 1.5}
+                    class:list={[
+                      "shrink-0 transition-colors duration-200",
+                      esActivo ? "text-[#0064c1]" : "text-[#787774] group-hover:text-[#0a0a0a]",
+                    ]}
+                  />
+                </div>
+
+                <span class="truncate whitespace-nowrap ml-1.5 transition-all duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:w-0 group-data-[collapsed=true]/sidebar:invisible">
+                  {item.label}
+                </span>
+
+                {item.badge && item.badgeType === "new" && (
+                  <span
+                    class="ml-auto mr-1.5 px-2 py-0.5 rounded-full text-white text-[0.66rem] font-semibold leading-tight shadow-sm shrink-0 whitespace-nowrap transition-all duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:w-0 group-data-[collapsed=true]/sidebar:p-0 group-data-[collapsed=true]/sidebar:overflow-hidden"
+                    style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), 0 2px 8px -1px rgba(58,138,244,0.45); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+                  >
+                    {item.badge}
+                  </span>
+                )}
+
+                {item.badge && item.badgeType !== "new" && (
+                  <span
+                    class:list={[
+                      "ml-auto mr-1.5 px-2 py-0.5 rounded-full text-[0.7rem] font-semibold leading-tight font-mono shrink-0 whitespace-nowrap transition-all duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:w-0 group-data-[collapsed=true]/sidebar:p-0 group-data-[collapsed=true]/sidebar:overflow-hidden",
+                      esActivo
+                        ? "bg-[#0064c1]/10 text-[#0064c1]"
+                        : "bg-black/[0.05] text-[#787774] group-hover:bg-black/[0.08] group-hover:text-[#0a0a0a]",
+                    ]}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </a>
+            );
+          })
+        }
+      </div>
+    </nav>
   </div>
 
-  <!-- Tarjeta de Usuario con estética idéntica al botón e index.astro -->
-  <div class="p-3 pt-1">
-    <a
-      href="#"
-      class="group flex items-center gap-3 p-2.5 rounded-2xl border border-[#00000012] bg-white no-underline transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-[#0064c1]/30 hover:-translate-y-0.5 hover:shadow-[0_8px_22px_-6px_rgba(58,138,244,0.22),0_6px_32px_-2px_rgba(120,185,255,0.32)]"
-    >
+  <!-- Tarjeta de Usuario Institucional con posición fija del avatar -->
+  <div
+    class="flex items-center gap-2.5 rounded-[20px] border border-white/80 bg-white/90 p-1.5 shadow-[0_10px_25px_-8px_rgba(9,60,120,0.15)] transition-all duration-300 hover:shadow-[0_14px_30px_-6px_rgba(9,60,120,0.22)] overflow-hidden shrink-0"
+  >
+    <div class="grid h-10 w-10 shrink-0 place-items-center">
       <span
-        class="grid place-items-center w-9 h-9 rounded-xl text-white text-xs font-bold shrink-0 overflow-hidden"
-        style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 -6px 10px -6px rgba(26,106,202,0.5), 0 4px 10px -2px rgba(58,138,244,0.4); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+        class="grid h-9 w-9 place-items-center rounded-2xl text-white text-xs font-bold shadow-sm"
+        style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 4px 14px -3px rgba(58,138,244,0.4); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+        aria-hidden="true"
       >
         UI
       </span>
-      <div class="flex-1 min-w-0 flex flex-col">
-        <span class="text-xs font-semibold text-[#0a0a0a] truncate group-hover:text-[#0064c1] transition-colors">
-          Usuario institucional
-        </span>
-        <span class="text-[0.7rem] text-[#787774] truncate">
-          usuario@observatorio.edu
-        </span>
-      </div>
-    </a>
+    </div>
+    <div class="flex min-w-0 flex-col pl-0.5 transition-all duration-200 group-data-[collapsed=true]/sidebar:opacity-0 group-data-[collapsed=true]/sidebar:w-0 group-data-[collapsed=true]/sidebar:invisible">
+      <span class="truncate text-xs font-semibold text-[#0a0a0a]"
+        >Usuario institucional</span
+      >
+      <span class="truncate text-[0.72rem] text-[#787774]"
+        >usuario@observatorio.edu</span
+      >
+    </div>
   </div>
 </aside>
+
+<script>
+  function setupSidebar() {
+    const sidebar = document.getElementById("main-sidebar");
+    const toggleBtn = document.getElementById("toggle-sidebar-btn");
+
+    if (sidebar && toggleBtn && !sidebar.getAttribute("data-initialized")) {
+      sidebar.setAttribute("data-initialized", "true");
+
+      const savedState = localStorage.getItem("sidebar-collapsed");
+      if (savedState === "true") {
+        sidebar.setAttribute("data-collapsed", "true");
+      }
+
+      toggleBtn.addEventListener("click", () => {
+        const isCollapsed = sidebar.getAttribute("data-collapsed") === "true";
+        const nextState = isCollapsed ? "false" : "true";
+        sidebar.setAttribute("data-collapsed", nextState);
+        localStorage.setItem("sidebar-collapsed", nextState);
+      });
+    }
+
+    // Manejo de acordeón animado para elementos desplegables
+    const collapsibles = document.querySelectorAll("[data-collapsible]");
+    collapsibles.forEach((collapsible) => {
+      const trigger = collapsible.querySelector("[data-collapsible-trigger]");
+      const content = collapsible.querySelector(".collapsible-content") as HTMLElement | null;
+
+      if (!trigger || !content || trigger.getAttribute("data-accordion-init")) return;
+      trigger.setAttribute("data-accordion-init", "true");
+
+      // Inicializar altura si viene abierto
+      if (collapsible.getAttribute("data-open") === "true") {
+        content.style.height = "auto";
+        content.style.opacity = "1";
+      } else {
+        content.style.height = "0px";
+        content.style.opacity = "0";
+      }
+
+      trigger.addEventListener("click", () => {
+        const isOpen = collapsible.getAttribute("data-open") === "true";
+
+        if (isOpen) {
+          // Animar cierre: calcular altura actual primero y luego llevar a 0
+          content.style.height = `${content.scrollHeight}px`;
+          content.style.opacity = "1";
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              content.style.height = "0px";
+              content.style.opacity = "0";
+              collapsible.setAttribute("data-open", "false");
+            });
+          });
+        } else {
+          // Animar apertura: expandir a scrollHeight y luego dejar en auto
+          collapsible.setAttribute("data-open", "true");
+          content.style.height = `${content.scrollHeight}px`;
+          content.style.opacity = "1";
+
+          const handleTransitionEnd = (e: TransitionEvent) => {
+            if (e.propertyName === "height" && collapsible.getAttribute("data-open") === "true") {
+              content.style.height = "auto";
+              content.removeEventListener("transitionend", handleTransitionEnd);
+            }
+          };
+          content.addEventListener("transitionend", handleTransitionEnd);
+        }
+      });
+    });
+  }
+
+  setupSidebar();
+  document.addEventListener("astro:page-load", setupSidebar);
+</script>

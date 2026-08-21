@@ -1,0 +1,245 @@
+---
+import SkyShader from "../../../components/SkyShader.astro";
+import { ServicioDashboard } from "../services/dashboard.service";
+import {
+  NotesIcon,
+  LinkIcon,
+  ClockCircleIcon,
+  StarsMinimalisticIcon,
+  ArrowRightIcon,
+  RoundedMagnifierZoomInIcon,
+  FilterIcon,
+  LikeIcon,
+  DislikeIcon,
+} from "@solar-icons/react/outline";
+
+const datos = await ServicioDashboard.obtenerDatosHome();
+const noticias = datos.noticias;
+---
+
+<div class="relative flex-1 flex flex-col w-full animate-rise isolate overflow-x-clip">
+  <!-- Atmósfera superior con SkyShader y degradado -->
+  <div
+    class="absolute inset-x-0 top-0 h-[360px] -z-10 overflow-hidden pointer-events-none"
+    style="mask-image: linear-gradient(180deg, black 0%, black 45%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, black 0%, black 45%, transparent 100%);"
+  >
+    <SkyShader intensity="soft" />
+  </div>
+
+  <div class="flex-1 flex flex-col px-6 md:px-12 pt-10 md:pt-14 pb-16 max-w-7xl w-full mx-auto gap-8">
+    <!-- Encabezado de News Feed -->
+    <header class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/[0.06]">
+      <div class="flex flex-col gap-2 max-w-2xl">
+        <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#0064c1]">
+          <span class="h-2 w-2 rounded-full bg-[#0064c1] animate-pulse"></span>
+          Actualidad &amp; Novedades
+        </div>
+
+        <h1 class="m-0 text-[clamp(2rem,3.4vw,2.8rem)] font-bold text-[#0a0a0a] tracking-[-0.035em] leading-[1.08] mix-blend-multiply opacity-95">
+          News Feed
+        </h1>
+
+        <p class="m-0 text-base text-[#0a0a0a]/75 font-medium tracking-tight">
+          Noticias, investigaciones y convocatorias actualizadas en tiempo real.
+        </p>
+      </div>
+
+      <!-- Barra de Filtros / Búsqueda decorativa consistente -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/80 shadow-[0_4px_16px_-4px_rgba(9,60,120,0.1)]">
+          <RoundedMagnifierZoomInIcon size={16} className="text-[#787774]" />
+          <input
+            type="text"
+            placeholder="Buscar noticias..."
+            class="bg-transparent border-none outline-none text-xs font-medium text-[#0a0a0a] placeholder:text-[#787774] w-36 sm:w-48"
+          />
+        </div>
+      </div>
+    </header>
+
+    <!-- Grid de Noticias con Metadatos e Imágenes Destacadas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      {
+        noticias.map((item) => (
+          <article
+            class="group relative flex flex-col justify-between rounded-[28px] bg-white/95 border border-white/80 shadow-[0_20px_45px_-18px_rgba(9,60,120,0.16),0_1px_3px_rgba(0,0,0,0.03)] backdrop-blur-md overflow-hidden transition-all duration-300"
+            data-card-id={item.id}
+          >
+            <!-- Imagen de Portada con Hover exclusivo -->
+            {item.imagen && (
+              <div class="relative w-full h-48 sm:h-52 overflow-hidden bg-black/5">
+                <img
+                  src={item.imagen}
+                  alt={item.titulo}
+                  class="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
+
+                <!-- Badges de Fuente y Categoría sobre la imagen -->
+                <div class="absolute top-3 inset-x-3 flex items-center justify-between gap-2">
+                  <span class="inline-flex items-center gap-1 text-[0.68rem] text-[#0064c1] font-bold uppercase tracking-wider bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm">
+                    <StarsMinimalisticIcon size={12} strokeWidth={2} />
+                    {item.categoria}
+                  </span>
+
+                  {item.fuente && (
+                    <span class="inline-flex items-center gap-1 text-[0.68rem] text-white font-medium bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+                      <LinkIcon size={11} strokeWidth={1.5} />
+                      {item.fuente}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <!-- Cuerpo de la Noticia -->
+            <div class="flex flex-col flex-1 p-5 md:p-6 justify-between gap-4">
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2 text-xs font-semibold text-[#787774]">
+                  <span>{item.fecha}</span>
+                  {item.lecturaMinutos && (
+                    <>
+                      <span>•</span>
+                      <span class="flex items-center gap-1 text-[0.72rem]">
+                        <ClockCircleIcon size={12} strokeWidth={1.5} />
+                        {item.lecturaMinutos} min de lectura
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <h3 class="m-0 text-base md:text-[1.1rem] font-bold text-[#0a0a0a] tracking-tight leading-snug group-hover:text-[#0064c1] transition-colors duration-300 line-clamp-3">
+                  {item.titulo}
+                </h3>
+
+                <p class="m-0 text-xs md:text-sm text-[#2f3437] leading-relaxed line-clamp-3">
+                  {item.descripcion}
+                </p>
+              </div>
+
+              <!-- Acciones inferiores: Botón de Lectura + Acciones de Reacción consistentes -->
+              <div class="pt-3.5 border-t border-black/[0.06] mt-auto flex items-center gap-2">
+                <!-- Botón de acción principal -->
+                <a
+                  href={item.enlace}
+                  target={item.enlace.startsWith("http") ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
+                  class="group/btn relative flex-1 inline-flex items-center justify-center gap-2 h-10 px-4 rounded-full text-white text-xs font-semibold tracking-[-0.01em] cursor-pointer overflow-hidden transition-all duration-300 active:scale-[0.985] shadow-sm"
+                  style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 4px 12px -2px rgba(58,138,244,0.4);"
+                >
+                  <span>Leer noticia</span>
+                  <ArrowRightIcon
+                    size={14}
+                    strokeWidth={2}
+                    className="transition-transform duration-300 group-hover/btn:translate-x-0.5"
+                  />
+                </a>
+
+                <!-- Cápsula de feedback Like / Dislike consistente -->
+                <div class="flex items-center h-10 p-1 rounded-full bg-white/90 border border-black/[0.08] shadow-[0_2px_8px_-2px_rgba(9,60,120,0.06)] backdrop-blur-md">
+                  <!-- Botón Me gusta -->
+                  <button
+                    type="button"
+                    data-reaction-btn="like"
+                    class="reaction-btn group/like relative flex items-center justify-center h-8 w-8 rounded-full text-[#787774] hover:text-[#0064c1] hover:bg-[#0064c1]/[0.08] transition-all duration-200 active:scale-90 cursor-pointer"
+                    title="Me gusta"
+                    aria-label="Me gusta"
+                  >
+                    <LikeIcon size={16} strokeWidth={1.8} className="transition-transform duration-200 group-hover/like:-rotate-12" />
+                  </button>
+
+                  <div class="w-px h-3.5 bg-black/10 mx-0.5"></div>
+
+                  <!-- Botón No me gusta -->
+                  <button
+                    type="button"
+                    data-reaction-btn="dislike"
+                    class="reaction-btn group/dislike relative flex items-center justify-center h-8 w-8 rounded-full text-[#787774] hover:text-rose-600 hover:bg-rose-50 transition-all duration-200 active:scale-90 cursor-pointer"
+                    title="No me gusta"
+                    aria-label="No me gusta"
+                  >
+                    <DislikeIcon size={16} strokeWidth={1.8} className="transition-transform duration-200 group-hover/dislike:rotate-12" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  // Manejo de interacción de reacción (Like / Dislike) consistente con el sistema visual
+  function setupReacciones() {
+    const articulos = document.querySelectorAll<HTMLElement>("article[data-card-id]");
+
+    const clasesBase = "reaction-btn relative flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200 active:scale-90 cursor-pointer";
+    const clasesInactivoLike = `${clasesBase} text-[#787774] hover:text-[#0064c1] hover:bg-[#0064c1]/[0.08]`;
+    const clasesInactivoDislike = `${clasesBase} text-[#787774] hover:text-rose-600 hover:bg-rose-50`;
+    
+    // Estado activo alineado con el gradiente celeste del botón principal del sistema
+    const clasesActivoLike = `${clasesBase} text-white shadow-sm scale-100 bg-[#0064c1] shadow-[0_2px_8px_rgba(0,100,193,0.35)]`;
+    const clasesActivoDislike = `${clasesBase} text-white shadow-sm scale-100 bg-rose-500 shadow-[0_2px_8px_rgba(244,63,94,0.35)]`;
+
+    articulos.forEach((articulo) => {
+      const cardId = articulo.getAttribute("data-card-id");
+      if (!cardId) return;
+
+      const storageKey = `reaccion_${cardId}`;
+      const btnLike = articulo.querySelector<HTMLButtonElement>('button[data-reaction-btn="like"]');
+      const btnDislike = articulo.querySelector<HTMLButtonElement>('button[data-reaction-btn="dislike"]');
+
+      if (!btnLike || !btnDislike) return;
+
+      const actualizarEstadoVisual = (reaccionActual: string | null) => {
+        if (reaccionActual === "like") {
+          btnLike.className = clasesActivoLike;
+          btnDislike.className = clasesInactivoDislike;
+        } else if (reaccionActual === "dislike") {
+          btnLike.className = clasesInactivoLike;
+          btnDislike.className = clasesActivoDislike;
+        } else {
+          btnLike.className = clasesInactivoLike;
+          btnDislike.className = clasesInactivoDislike;
+        }
+      };
+
+      const reaccionGuardada = localStorage.getItem(storageKey);
+      actualizarEstadoVisual(reaccionGuardada);
+
+      btnLike.onclick = (e) => {
+        e.preventDefault();
+        const reaccionActual = localStorage.getItem(storageKey);
+        const nuevaReaccion = reaccionActual === "like" ? null : "like";
+        if (nuevaReaccion) {
+          localStorage.setItem(storageKey, nuevaReaccion);
+        } else {
+          localStorage.removeItem(storageKey);
+        }
+        actualizarEstadoVisual(nuevaReaccion);
+      };
+
+      btnDislike.onclick = (e) => {
+        e.preventDefault();
+        const reaccionActual = localStorage.getItem(storageKey);
+        const nuevaReaccion = reaccionActual === "dislike" ? null : "dislike";
+        if (nuevaReaccion) {
+          localStorage.setItem(storageKey, nuevaReaccion);
+        } else {
+          localStorage.removeItem(storageKey);
+        }
+        actualizarEstadoVisual(nuevaReaccion);
+      };
+    });
+  }
+
+  // Inicializar en carga y en navegaciones de Astro View Transitions
+  document.addEventListener("DOMContentLoaded", setupReacciones);
+  document.addEventListener("astro:page-load", setupReacciones);
+</script>
+
+
+

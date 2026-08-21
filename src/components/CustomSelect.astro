@@ -159,7 +159,9 @@ const {
 
     options.forEach((opt, i) => {
       opt.addEventListener("click", () => choose(opt));
-      opt.addEventListener("mousemove", () => setActive(i));
+      opt.addEventListener("mousemove", () => {
+        if (activeIndex !== i) setActive(i);
+      });
     });
 
     root.addEventListener("keydown", (e) => {
@@ -181,10 +183,13 @@ const {
       }
     });
 
-    document.addEventListener("click", (e) => {
-      if (open && !root.contains(e.target as Node)) setOpen(false);
-    });
+    root.setAttribute("data-initialized", "true");
   }
 
-  document.querySelectorAll<HTMLElement>("[data-select]").forEach(initSelect);
+  function setupAllSelects() {
+    document.querySelectorAll<HTMLElement>("[data-select]:not([data-initialized])").forEach(initSelect);
+  }
+
+  setupAllSelects();
+  document.addEventListener("astro:page-load", setupAllSelects);
 </script>
