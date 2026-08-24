@@ -163,13 +163,31 @@ const { intensity = "full" } = Astro.props;
 
     let raf = 0;
     let visible = true;
-    new IntersectionObserver(
+    let isTabVisible = !document.hidden;
+
+    const observer = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting;
-        if (visible && !reduced) start();
+        if (visible && isTabVisible && !reduced) {
+          start();
+        } else {
+          cancelAnimationFrame(raf);
+        }
       },
       { threshold: 0 }
-    ).observe(root);
+    );
+    observer.observe(root);
+
+    const onVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (isTabVisible && visible && !reduced) {
+        lastFrame = performance.now();
+        start();
+      } else {
+        cancelAnimationFrame(raf);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const BASE_SPEED = 1;
     const MAX_SPEED = 6;
@@ -187,24 +205,22 @@ const { intensity = "full" } = Astro.props;
     let lastMove = 0;
     let hasPointer = false;
 
-    window.addEventListener(
-      "pointermove",
-      (e) => {
-        const now = performance.now();
-        if (hasPointer) {
-          const dt = now - lastMove;
-          if (dt > 0) {
-            const v = Math.hypot(e.clientX - lastX, e.clientY - lastY) / dt;
-            burst = Math.min(MAX_SPEED, v * SPEED_FACTOR);
-          }
+    const onPointerMove = (e: PointerEvent) => {
+      const now = performance.now();
+      if (hasPointer) {
+        const dt = now - lastMove;
+        if (dt > 0) {
+          const v = Math.hypot(e.clientX - lastX, e.clientY - lastY) / dt;
+          burst = Math.min(MAX_SPEED, v * SPEED_FACTOR);
         }
-        lastX = e.clientX;
-        lastY = e.clientY;
-        lastMove = now;
-        hasPointer = true;
-      },
-      { passive: true }
-    );
+      }
+      lastX = e.clientX;
+      lastY = e.clientY;
+      lastMove = now;
+      hasPointer = true;
+    };
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
 
     const render = () => {
       gl.uniform1f(uTime, time);
@@ -220,7 +236,9 @@ const { intensity = "full" } = Astro.props;
       speed += (BASE_SPEED + burst - speed) * EASE;
       time += dt * speed;
       render();
-      if (visible && !reduced) raf = requestAnimationFrame(tick);
+      if (visible && isTabVisible && !reduced) {
+        raf = requestAnimationFrame(tick);
+      }
     }
 
     function start() {
@@ -232,18 +250,28 @@ const { intensity = "full" } = Astro.props;
     if (reduced) {
       time = START_TIME;
       render();
-    } else {
+    } else if (isTabVisible && visible) {
       start();
     }
+
+    // Limpieza de recursos al cambiar de página en Astro
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        cancelAnimationFrame(raf);
+        observer.disconnect();
+        window.removeEventListener("resize", resize);
+        window.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+      },
+      { once: true }
+    );
   }
 
   const init = () =>
     document
       .querySelectorAll<HTMLElement>("[data-shader]")
       .forEach(initShader);
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+
+  document.addEventListener("astro:page-load", init);
 </script>

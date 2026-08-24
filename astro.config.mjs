@@ -5,8 +5,32 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+	prefetch: {
+		prefetchAll: true,
+		defaultStrategy: 'hover',
+	},
 	integrations: [react()],
 	vite: {
 		plugins: [tailwindcss()],
+		build: {
+			rollupOptions: {
+				output: {
+					manualChunks(id) {
+						if (id.includes('node_modules')) {
+							if (id.includes('react') || id.includes('react-dom')) {
+								return 'vendor-react';
+							}
+							if (id.includes('@heroui') || id.includes('@react-aria') || id.includes('@react-stately')) {
+								return 'vendor-heroui';
+							}
+							if (id.includes('@solar-icons')) {
+								return 'vendor-icons';
+							}
+						}
+					},
+				},
+			},
+		},
 	},
 });
+
