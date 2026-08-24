@@ -41,7 +41,7 @@ const esContrasena = type === "password";
     {Icon && <Icon size={18} strokeWidth={1.5} className={fieldLabelIcon} />}
     {label}
   </label>
-  <div class:list={[fieldControl, fieldControlFocusWithin, esContrasena ? "flex items-center" : ""]}>
+  <div class:list={[fieldControl, fieldControlFocusWithin, esContrasena ? "flex items-center" : "", "has-[:disabled]:bg-black/[0.03] has-[:disabled]:opacity-60 has-[:disabled]:cursor-not-allowed transition-opacity duration-300"]}>
     <input
       id={name}
       name={name}
@@ -52,7 +52,7 @@ const esContrasena = type === "password";
       min={min}
       max={max}
       required={required}
-      class="w-full bg-transparent px-4 py-3.5 text-base text-[#0a0a0a] outline-none placeholder:text-[#787774]/70 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      class="w-full bg-transparent px-4 py-3.5 text-base text-[#0a0a0a] outline-none placeholder:text-[#787774]/70 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:cursor-not-allowed"
     />
 
     {

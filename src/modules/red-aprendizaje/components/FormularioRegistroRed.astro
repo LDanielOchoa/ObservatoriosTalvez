@@ -1,6 +1,7 @@
 ---
 import CustomSelect from "../../../components/CustomSelect.astro";
 import Input from "../../../components/Input.astro";
+import { Link } from "@heroui/react";
 import { mesesOpciones, semestresOpciones } from "../constants/opciones-fecha";
 import {
   UserIcon,
@@ -125,10 +126,10 @@ import {
     />
   </button>
 
-  <a
-    href="/"
-    class="relative w-fit mx-auto text-[#0064c1] text-sm font-medium no-underline transition-colors hover:text-[#0f2fe8] after:absolute after:left-0 after:bottom-[-2px] after:w-full after:h-px after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
-  >
-    Volver al acceso
-  </a>
+  <div class="flex justify-center mt-2">
+    <Link href="/" className="text-sm font-medium text-[#0064c1]">
+      Volver al acceso
+      <Link.Icon />
+    </Link>
+  </div>
 </form>

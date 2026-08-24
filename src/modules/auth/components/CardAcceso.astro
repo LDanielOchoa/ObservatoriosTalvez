@@ -1,10 +1,10 @@
 ---
 import Input from "../../../components/Input.astro";
+import { Link } from "@heroui/react";
 import {
   LetterIcon,
   LockIcon,
   ArrowRightIcon,
-  UsersGroupRoundedIcon,
 } from "@solar-icons/react/outline";
 ---
 
@@ -66,15 +66,28 @@ import {
     <div class="animate-rise" style="animation-delay: 0.5s">
       <button
         type="submit"
-        class="group relative w-full inline-flex items-center justify-center gap-2 mt-1 px-8 py-4 rounded-full text-white text-base font-semibold tracking-[-0.01em] whitespace-nowrap cursor-pointer overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.985] focus-visible:outline-2 focus-visible:outline-[#0064c1] focus-visible:outline-offset-[3px]"
+        id="btn-login-submit"
+        class="group relative w-full inline-flex items-center justify-center gap-2 mt-1 px-8 py-4 rounded-full text-white text-base font-semibold tracking-[-0.01em] whitespace-nowrap cursor-pointer overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.985] focus-visible:outline-2 focus-visible:outline-[#0064c1] focus-visible:outline-offset-[3px] disabled:opacity-85 disabled:cursor-not-allowed disabled:pointer-events-none"
         style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 8px 22px -6px rgba(58,138,244,0.4), 0 6px 32px -2px rgba(120,185,255,0.58); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
       >
-        <span class="relative z-10">Entrar</span>
-        <ArrowRightIcon
-          size={18}
-          strokeWidth={2}
-          className="relative z-10 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
-        />
+        <!-- Estado normal -->
+        <span id="btn-login-content" class="relative z-10 flex items-center justify-center gap-2 transition-opacity duration-200">
+          <span>Entrar</span>
+          <ArrowRightIcon
+            size={18}
+            strokeWidth={2}
+            className="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+          />
+        </span>
+
+        <!-- Microanimación de loader en estado analizando -->
+        <span id="btn-login-loader" class="hidden relative z-10 items-center justify-center gap-2.5 transition-opacity duration-200">
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+            <path class="opacity-95" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-sm font-medium">Analizando...</span>
+        </span>
       </button>
     </div>
 
@@ -82,17 +95,10 @@ import {
       class="flex flex-col items-center gap-3 mt-6 pt-5 border-t border-black/5 animate-rise"
       style="animation-delay: 0.58s"
     >
-      <a
-        href="/red"
-        class="group/link relative w-fit inline-flex items-center gap-1.5 text-[#0064c1] text-sm font-medium no-underline transition-colors hover:text-[#0f2fe8] after:absolute after:left-0 after:bottom-[-2px] after:w-full after:h-px after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100"
-      >
-        <UsersGroupRoundedIcon
-          size={16}
-          strokeWidth={1.5}
-          className="transition-transform duration-300 group-hover/link:scale-110"
-        />
+      <Link href="/red" className="text-sm font-medium text-[#0064c1]">
         Red de aprendizaje
-      </a>
+        <Link.Icon />
+      </Link>
     </div>
   </form>
 </div>
