@@ -9,8 +9,9 @@ import { EyeIcon, EyeClosedIcon } from "@solar-icons/react/outline";
 
 interface Props {
   name: string;
-  label: string;
+  label?: string;
   type?: string;
+  value?: string | number;
   placeholder?: string;
   autocomplete?: string;
   inputmode?: "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url";
@@ -24,6 +25,7 @@ const {
   name,
   label,
   type = "text",
+  value,
   placeholder,
   autocomplete,
   inputmode,
@@ -37,15 +39,20 @@ const esContrasena = type === "password";
 ---
 
 <div class="group/field flex flex-col gap-2" data-password-field={esContrasena ? "true" : undefined}>
-  <label for={name} class={fieldLabel}>
-    {Icon && <Icon size={18} strokeWidth={1.5} className={fieldLabelIcon} />}
-    {label}
-  </label>
+  {
+    (label || Icon) && (
+      <label for={name} class={fieldLabel}>
+        {Icon && <Icon size={18} strokeWidth={1.5} className={fieldLabelIcon} />}
+        {label}
+      </label>
+    )
+  }
   <div class:list={[fieldControl, fieldControlFocusWithin, esContrasena ? "flex items-center" : "", "has-[:disabled]:bg-black/[0.03] has-[:disabled]:opacity-60 has-[:disabled]:cursor-not-allowed transition-opacity duration-300"]}>
     <input
       id={name}
       name={name}
       type={type}
+      value={value}
       placeholder={placeholder}
       autocomplete={autocomplete}
       inputmode={inputmode}
