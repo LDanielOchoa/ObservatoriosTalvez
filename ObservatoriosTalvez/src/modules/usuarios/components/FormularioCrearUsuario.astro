@@ -1,0 +1,302 @@
+---
+import CustomSelect from "../../../components/CustomSelect.astro";
+import Input from "../../../components/Input.astro";
+import { mesesOpciones, semestresOpciones } from "../../red-aprendizaje/constants/opciones-fecha";
+import {
+  UserIcon,
+  CardIcon,
+  PhoneIcon,
+  CalendarIcon,
+  BookIcon,
+  ArrowRightIcon,
+  AltArrowLeftIcon,
+  LetterIcon,
+} from "@solar-icons/react/outline";
+---
+
+<div class="relative flex-1 flex flex-col w-full animate-rise isolate overflow-x-clip">
+  <div class="flex-1 flex flex-col px-6 md:px-12 pt-8 md:pt-10 pb-16 max-w-4xl w-full mx-auto gap-8">
+    <!-- Botón Volver a Usuarios -->
+    <div>
+      <a
+        href="/dashboard/usuarios"
+        class="group inline-flex items-center gap-1.5 text-xs font-semibold text-[#787774] hover:text-[#0064c1] transition-colors cursor-pointer"
+      >
+        <AltArrowLeftIcon
+          size={16}
+          strokeWidth={2}
+          className="transition-transform duration-200 group-hover:-translate-x-1"
+        />
+        <span>Volver a la lista de usuarios</span>
+      </a>
+    </div>
+
+    <!-- Encabezado de la Página de Creación -->
+    <header class="flex flex-col gap-2 pb-6 border-b border-black/[0.06]">
+      <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#0064c1]">
+        <span class="h-2 w-2 rounded-full bg-[#0064c1]"></span>
+        Formulario de Registro
+      </div>
+
+      <h1 class="m-0 text-[clamp(1.8rem,3vw,2.4rem)] font-bold text-[#0a0a0a] tracking-[-0.03em] leading-tight mix-blend-multiply opacity-95">
+        Crear Nuevo Usuario Estudiante
+      </h1>
+
+      <p class="m-0 text-sm text-[#787774] font-medium tracking-tight">
+        Ingresa los datos del estudiante para vincularlo directamente a la Red de Aprendizaje.
+      </p>
+    </header>
+
+    <!-- Formulario Completo -->
+    <div class="w-full">
+      <form id="form-crear-usuario" class="flex flex-col gap-6" method="post">
+        <!-- Sección 1: Información Personal -->
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-2 pb-2 border-b border-black/[0.05]">
+            <span class="grid h-6 w-6 place-items-center rounded-lg bg-[#0064c1]/10 text-[#0064c1] text-xs font-bold">
+              1
+            </span>
+            <span class="text-xs font-bold text-[#0a0a0a] uppercase tracking-wider">
+              Información Personal
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              name="nombre"
+              label="Nombre completo"
+              placeholder="Ej. Alejandro Fernando Haro"
+              autocomplete="name"
+              icon={UserIcon}
+              required
+            />
+
+            <Input
+              name="email"
+              label="Correo electrónico"
+              type="email"
+              placeholder="estudiante@universidad.edu.co"
+              autocomplete="email"
+              icon={LetterIcon}
+              required
+            />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              name="cedula"
+              label="Cédula de ciudadanía (Contraseña inicial)"
+              inputmode="numeric"
+              placeholder="0000000000"
+              icon={CardIcon}
+              required
+            />
+            <Input
+              name="telefono"
+              label="Número de teléfono"
+              type="tel"
+              placeholder="300 123 4567"
+              autocomplete="tel"
+              icon={PhoneIcon}
+              required
+            />
+          </div>
+
+          <!-- Fecha de nacimiento -->
+          <div class="flex flex-col gap-2">
+            <span class="flex items-center gap-2 text-[#0a0a0a] text-sm font-[560] tracking-[-0.01em]">
+              <CalendarIcon size={18} strokeWidth={1.5} className="text-[#0064c1]" />
+              Fecha de nacimiento
+            </span>
+
+            <div class="grid grid-cols-3 gap-3">
+              <Input
+                name="dia"
+                type="number"
+                placeholder="Día"
+                min="1"
+                max="31"
+                required
+              />
+
+              <CustomSelect
+                name="mes"
+                label="Mes"
+                placeholder="Mes"
+                options={mesesOpciones}
+                required
+              />
+
+              <Input
+                name="anio"
+                type="number"
+                placeholder="Año"
+                min="1900"
+                max={new Date().getFullYear()}
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 2: Información Académica & Estado -->
+        <div class="flex flex-col gap-4 pt-4">
+          <div class="flex items-center gap-2 pb-2 border-b border-black/[0.05]">
+            <span class="grid h-6 w-6 place-items-center rounded-lg bg-[#0064c1]/10 text-[#0064c1] text-xs font-bold">
+              2
+            </span>
+            <span class="text-xs font-bold text-[#0a0a0a] uppercase tracking-wider">
+              Información Académica y Estado
+            </span>
+          </div>
+
+          <Input
+            name="universidad"
+            label="Universidad / Institución"
+            placeholder="Ej. Universidad Nacional de Colombia"
+            icon={BookIcon}
+            required
+          />
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              name="carrera"
+              label="Programa académico / Carrera"
+              placeholder="Ej. Ingeniería de Software"
+              icon={BookIcon}
+              required
+            />
+
+            <CustomSelect
+              name="semestre"
+              label="Semestre actual"
+              placeholder="Seleccionar semestre"
+              options={semestresOpciones}
+              required
+            />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CustomSelect
+              name="estado"
+              label="Estado inicial de la cuenta"
+              placeholder="Activo"
+              options={[
+                { value: "Activo", label: "Activo (Permite ingreso inmediato)" },
+                { value: "Pendiente", label: "Pendiente" },
+                { value: "Inactivo", label: "Inactivo" },
+              ]}
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Mensaje de error si ocurre -->
+        <div id="mensaje-error" class="hidden p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 font-medium"></div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center justify-end gap-3 pt-6 border-t border-black/[0.06] mt-4">
+          <a
+            href="/dashboard/usuarios"
+            class="px-5 py-2.5 rounded-full text-xs font-semibold text-[#787774] hover:bg-black/[0.05] transition-colors cursor-pointer"
+          >
+            Cancelar
+          </a>
+
+          <button
+            type="submit"
+            id="btn-guardar"
+            class="group/btn relative inline-flex items-center justify-center gap-2 px-7 py-2.5 rounded-full text-white text-xs font-semibold tracking-[-0.01em] cursor-pointer overflow-hidden transition-all duration-300 active:scale-[0.985] shadow-sm"
+            style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 4px 12px -2px rgba(58,138,244,0.4);"
+          >
+            <span class="relative z-10">Guardar y registrar estudiante</span>
+            <ArrowRightIcon
+              size={14}
+              strokeWidth={2}
+              className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+            />
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function inicializarFormulario() {
+    const form = document.getElementById("form-crear-usuario") as HTMLFormElement;
+    const errorDiv = document.getElementById("mensaje-error");
+    const btnGuardar = document.getElementById("btn-guardar") as HTMLButtonElement;
+
+    if (!form || form.dataset.inicializado === "true") return;
+    form.dataset.inicializado = "true";
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (errorDiv) {
+        errorDiv.classList.add("hidden");
+        errorDiv.textContent = "";
+      }
+
+      const formData = new FormData(form);
+      const dia = formData.get("dia");
+      const mes = formData.get("mes");
+      const anio = formData.get("anio");
+      const fechaNacimiento = dia && mes && anio ? `${dia} de ${mes}, ${anio}` : "";
+
+      const payload = {
+        nombre: formData.get("nombre"),
+        email: formData.get("email"),
+        cedula: formData.get("cedula"),
+        telefono: formData.get("telefono"),
+        fechaNacimiento,
+        universidad: formData.get("universidad"),
+        carrera: formData.get("carrera"),
+        semestre: formData.get("semestre"),
+        estado: formData.get("estado") || "Activo",
+      };
+
+      if (btnGuardar) {
+        btnGuardar.disabled = true;
+        btnGuardar.classList.add("opacity-70");
+      }
+
+      try {
+        const res = await fetch("/api/usuarios", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (errorDiv) {
+            errorDiv.textContent = data.error || "Ocurrió un error al registrar el usuario.";
+            errorDiv.classList.remove("hidden");
+          }
+          if (btnGuardar) {
+            btnGuardar.disabled = false;
+            btnGuardar.classList.remove("opacity-70");
+          }
+          return;
+        }
+
+        // Redirigir a la lista de usuarios
+        window.location.href = "/dashboard/usuarios";
+      } catch (err: any) {
+        if (errorDiv) {
+          errorDiv.textContent = "Error de conexión con el servidor.";
+          errorDiv.classList.remove("hidden");
+        }
+        if (btnGuardar) {
+          btnGuardar.disabled = false;
+          btnGuardar.classList.remove("opacity-70");
+        }
+      }
+    });
+  }
+
+  inicializarFormulario();
+  document.addEventListener("astro:page-load", inicializarFormulario);
+</script>

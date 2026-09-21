@@ -1,0 +1,57 @@
+---
+export const prerender = false;
+
+import "../../../../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Sidebar from "../../../../components/Sidebar.astro";
+import SkyShader from "../../../../components/SkyShader.astro";
+import {
+  FormularioEditarDocumento,
+  ServicioRepositorio,
+} from "../../../../modules/repositorio";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/dashboard/contenido-repositorio");
+}
+
+const documentoData = await ServicioRepositorio.obtenerDocumentoPorId(id);
+
+if (!documentoData) {
+  return Astro.redirect("/dashboard/contenido-repositorio");
+}
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content={`Editar documento del repositorio: ${documentoData.titulo}`}
+    />
+    <title>Editar Documento · {documentoData.titulo}</title>
+    <ClientRouter />
+  </head>
+  <body class="bg-[#fbfbfa] text-[#0a0a0a]">
+    <div class="flex min-h-svh w-full">
+      <!-- Barra lateral con Contenido Repositorios activo -->
+      <Sidebar active="Contenido Repositorios" />
+
+      <!-- Contenido de Edición con Fondo Dinámico -->
+      <main class="relative flex-1 flex flex-col min-w-0">
+        <div
+          class="pointer-events-none absolute inset-0 z-0 h-[22rem] overflow-hidden opacity-35"
+        >
+          <SkyShader intensity="soft" />
+        </div>
+
+        <div class="relative z-10 flex-1 flex flex-col px-6 md:px-12 pt-8 md:pt-10 pb-16">
+          <FormularioEditarDocumento client:load documento={documentoData} />
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

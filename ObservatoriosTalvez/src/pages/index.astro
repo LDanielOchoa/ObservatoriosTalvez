@@ -1,0 +1,46 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import SkyShader from "../components/SkyShader.astro";
+import FormToasts from "../components/FormToasts.tsx";
+import { BrandingAcceso, CardAcceso } from "../modules/auth";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Acceso y registro al Observatorio de Responsabilidad Social y Sostenibilidad"
+    />
+    <title>Observatorio · Acceso</title>
+    <ClientRouter />
+  </head>
+  <body class="bg-[#fbfbfa] text-[#0a0a0a]">
+    <main class="relative w-full min-h-svh isolate overflow-x-clip">
+      <SkyShader intensity="full" />
+
+
+
+      <div
+        class="relative z-10 w-full min-h-svh flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-[clamp(4rem,7vw,8rem)] px-[clamp(1.25rem,4vw,4.5rem)] py-[clamp(2rem,5vh,4rem)]"
+      >
+        <!-- Branding del Dominio Auth -->
+        <BrandingAcceso />
+
+        <!-- Tarjeta de Acceso del Dominio Auth -->
+        <CardAcceso />
+      </div>
+
+      <FormToasts
+        client:load
+        formId="form-login"
+        successTitle="Sesión iniciada"
+        successDescription="Bienvenido al Observatorio."
+        redirectUrl="/dashboard"
+      />
+    </main>
+  </body>
+</html>

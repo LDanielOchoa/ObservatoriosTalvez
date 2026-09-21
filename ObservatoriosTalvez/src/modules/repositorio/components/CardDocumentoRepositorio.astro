@@ -1,0 +1,97 @@
+---
+import type { DocumentoRepositorio } from "../services/repositorio.types";
+import {
+  ArrowRightIcon,
+  LikeIcon,
+  FileTextIcon,
+} from "@solar-icons/react/outline";
+
+interface Props {
+  documento: DocumentoRepositorio;
+}
+
+const { documento } = Astro.props;
+---
+
+<article
+  class="group/card relative flex flex-col justify-between rounded-[28px] p-6 bg-white/95 border border-white/80 shadow-[0_20px_45px_-18px_rgba(9,60,120,0.14),0_1px_3px_rgba(0,0,0,0.03)] backdrop-blur-md transition-all duration-300 hover:shadow-[0_24px_50px_-14px_rgba(9,60,120,0.2)]"
+  data-doc-id={documento.id}
+>
+  <!-- Encabezado de la Card: Línea de investigación, Categoría y Año -->
+  <div class="flex items-center justify-between gap-2 pb-3.5 border-b border-black/[0.05]">
+    <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+      <span class="inline-flex items-center gap-1 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-[#0064c1] truncate">
+        {documento.lineaInvestigacion}
+      </span>
+      {
+        documento.categoria && (
+          <span class="inline-flex items-center text-[0.66rem] font-bold text-[#787774] bg-black/[0.04] px-2 py-0.5 rounded-full truncate max-w-[130px]">
+            {documento.categoria}
+          </span>
+        )
+      }
+    </div>
+
+    <span
+      class="font-mono text-[0.72rem] font-bold text-[#0064c1] bg-[#0064c1]/10 px-2.5 py-0.5 rounded-full border border-[#0064c1]/20 shrink-0"
+    >
+      {documento.ano}
+    </span>
+  </div>
+
+  <!-- Contenido: Título, Metadatos y Autores -->
+  <div class="flex flex-col gap-4 my-4">
+    <!-- Título principal -->
+    <h3 class="m-0 text-base md:text-[1.08rem] font-bold text-[#0a0a0a] tracking-tight leading-snug group-hover/card:text-[#0064c1] transition-colors duration-300 line-clamp-3">
+      {documento.titulo}
+    </h3>
+
+    <!-- Metadatos clave: Tipo de fuente y País -->
+    <div class="grid grid-cols-2 gap-3 py-2 px-3 rounded-2xl bg-black/[0.02] border border-black/[0.04]">
+      <div class="flex flex-col gap-0.5 min-w-0">
+        <span class="text-[0.68rem] font-medium text-[#787774]">Tipo de fuente</span>
+        <span class="text-xs font-bold text-[#0a0a0a] truncate">{documento.tipoFuente}</span>
+      </div>
+
+      <div class="flex flex-col gap-0.5 min-w-0">
+        <span class="text-[0.68rem] font-medium text-[#787774]">País</span>
+        <span class="text-xs font-bold text-[#0a0a0a] truncate">{documento.pais}</span>
+      </div>
+    </div>
+
+    <!-- Autores -->
+    <div class="flex flex-col gap-1">
+      <span class="text-[0.68rem] font-medium text-[#787774]">Autores</span>
+      <p class="m-0 text-xs text-[#2f3437] font-medium leading-relaxed line-clamp-2">
+        {documento.autores.join(", ")}
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer de la Card: Botón Consultar Documento + Botón Like sin contador -->
+  <div class="pt-3.5 border-t border-black/[0.06] mt-auto flex items-center gap-2.5">
+    <a
+      href={`/dashboard/repositorio/${documento.id}`}
+      class="group/btn relative flex-1 inline-flex items-center justify-center gap-2 h-10 px-4 rounded-full text-white text-xs font-semibold tracking-[-0.01em] cursor-pointer overflow-hidden transition-all duration-300 active:scale-[0.985] shadow-sm"
+      style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 4px 12px -2px rgba(58,138,244,0.4);"
+    >
+      <span class="relative z-10">Consultar documento</span>
+      <ArrowRightIcon
+        size={14}
+        strokeWidth={2}
+        className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-0.5"
+      />
+    </a>
+
+    <!-- Botón de Like interactivo (solo icono sin número contador) -->
+    <button
+      type="button"
+      data-repo-like-btn={documento.id}
+      class="btn-repo-like group/like relative grid h-10 w-10 place-items-center rounded-full text-[#787774] bg-white/90 border border-black/[0.08] hover:text-[#0064c1] hover:bg-[#0064c1]/[0.08] shadow-[0_2px_8px_-2px_rgba(9,60,120,0.06)] backdrop-blur-md transition-all duration-200 active:scale-95 cursor-pointer shrink-0"
+      title="Me gusta este documento"
+      aria-label="Me gusta este documento"
+    >
+      <LikeIcon size={16} strokeWidth={1.8} className="transition-transform duration-200 group-hover/like:-rotate-12" />
+    </button>
+  </div>
+</article>

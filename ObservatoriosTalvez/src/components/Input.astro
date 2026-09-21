@@ -1,0 +1,124 @@
+---
+import {
+  fieldControl,
+  fieldControlFocusWithin,
+  fieldLabel,
+  fieldLabelIcon,
+} from "./fieldClasses";
+import { EyeIcon, EyeClosedIcon } from "@solar-icons/react/outline";
+interface Props {
+  name: string;
+  label?: string;
+  type?: astroHTML.JSX.HTMLInputTypeAttribute;
+  value?: string | number;
+  placeholder?: string;
+  autocomplete?: string;
+  inputmode?: "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url";
+  min?: string | number;
+  max?: string | number;
+  required?: boolean;
+  icon?: any;
+}
+
+
+const {
+  name,
+  label,
+  type = "text",
+  value,
+  placeholder,
+  autocomplete,
+  inputmode,
+  min,
+  max,
+  required = false,
+  icon: Icon,
+} = Astro.props;
+
+const esContrasena = type === "password";
+---
+
+<div class="group/field flex flex-col gap-2" data-password-field={esContrasena ? "true" : undefined}>
+  {
+    (label || Icon) && (
+      <label for={name} class={fieldLabel}>
+        {Icon && <Icon size={18} strokeWidth={1.5} className={fieldLabelIcon} />}
+        {label}
+      </label>
+    )
+  }
+  <div class:list={[fieldControl, fieldControlFocusWithin, esContrasena ? "flex items-center" : "", "has-[:disabled]:bg-black/[0.03] has-[:disabled]:opacity-60 has-[:disabled]:cursor-not-allowed transition-opacity duration-300"]}>
+    <input
+      id={name}
+      name={name}
+      type={type}
+      value={value}
+      placeholder={placeholder}
+      autocomplete={autocomplete}
+      inputmode={inputmode}
+      min={min}
+      max={max}
+      required={required}
+      class="w-full bg-transparent px-4 py-3.5 text-base text-[#0a0a0a] outline-none placeholder:text-[#787774]/70 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:cursor-not-allowed"
+    />
+
+    {
+      esContrasena && (
+        <button
+          type="button"
+          class="toggle-password-btn mr-3 p-1.5 rounded-lg text-[#787774] transition-all hover:text-[#0064c1] hover:bg-black/5 active:scale-95 focus-visible:outline-2 focus-visible:outline-[#0064c1] cursor-pointer"
+          aria-label="Mostrar u ocultar contraseña"
+          title="Mostrar u ocultar contraseña"
+        >
+          <span class="icon-show block">
+            <EyeIcon size={20} strokeWidth={1.5} />
+          </span>
+          <span class="icon-hide hidden">
+            <EyeClosedIcon size={20} strokeWidth={1.5} />
+          </span>
+        </button>
+      )
+    }
+  </div>
+</div>
+
+{
+  esContrasena && (
+    <script>
+      function inicializarAlternadorContrasena() {
+        const contenedores = document.querySelectorAll('[data-password-field="true"]');
+        contenedores.forEach((contenedor) => {
+          if (contenedor.getAttribute("data-initialized")) return;
+          contenedor.setAttribute("data-initialized", "true");
+
+          const input = contenedor.querySelector("input");
+          const boton = contenedor.querySelector(".toggle-password-btn");
+          const iconShow = contenedor.querySelector(".icon-show");
+          const iconHide = contenedor.querySelector(".icon-hide");
+
+          if (!input || !boton || !iconShow || !iconHide) return;
+
+          boton.addEventListener("click", () => {
+            const esPassword = input.type === "password";
+            input.type = esPassword ? "text" : "password";
+
+            if (esPassword) {
+              iconShow.classList.add("hidden");
+              iconShow.classList.remove("block");
+              iconHide.classList.remove("hidden");
+              iconHide.classList.add("block");
+            } else {
+              iconShow.classList.remove("hidden");
+              iconShow.classList.add("block");
+              iconHide.classList.add("hidden");
+              iconHide.classList.remove("block");
+            }
+          });
+        });
+      }
+
+      inicializarAlternadorContrasena();
+      document.addEventListener("astro:page-load", inicializarAlternadorContrasena);
+    </script>
+  )
+}

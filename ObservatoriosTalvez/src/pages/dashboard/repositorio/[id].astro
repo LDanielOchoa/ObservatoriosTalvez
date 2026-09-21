@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+
+import "../../../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Sidebar from "../../../components/Sidebar.astro";
+import {
+  DetalleDocumentoRepositorio,
+  ServicioRepositorio,
+} from "../../../modules/repositorio";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/dashboard/repositorio");
+}
+
+const docData = await ServicioRepositorio.obtenerDocumentoPorId(id);
+
+if (!docData) {
+  return Astro.redirect("/dashboard/repositorio");
+}
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content={`Ficha técnica del documento: ${docData.titulo}`}
+    />
+    <title>{docData.titulo} · Observatorio</title>
+    <ClientRouter />
+  </head>
+  <body class="bg-[#fbfbfa] text-[#0a0a0a]">
+    <div class="flex min-h-svh w-full">
+      <!-- Barra lateral de navegación con Repositorio activo -->
+      <Sidebar active="Repositorio" />
+
+      <!-- Contenido de la Ficha Técnica del Documento -->
+      <main class="flex-1 flex flex-col min-w-0">
+        <DetalleDocumentoRepositorio documento={docData} />
+      </main>
+    </div>
+  </body>
+</html>

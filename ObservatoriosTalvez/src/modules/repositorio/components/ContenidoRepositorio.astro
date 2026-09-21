@@ -1,0 +1,594 @@
+---
+import SkyShader from "../../../components/SkyShader.astro";
+import CardDocumentoRepositorio from "./CardDocumentoRepositorio.astro";
+import { ServicioRepositorio } from "../services/repositorio.service";
+import {
+  LibraryIcon,
+  RoundedMagnifierZoomInIcon,
+  CloseCircleIcon,
+  FileTextIcon,
+  UsersGroupRoundedIcon,
+  GlobeIcon,
+  BookBookmarkIcon,
+  LayersMinimalisticIcon,
+  AltArrowDownIcon,
+  CheckCircleIcon,
+} from "@solar-icons/react/outline";
+
+const documentos = await ServicioRepositorio.obtenerDocumentos();
+
+// Agrupar documentos por categoría
+const gruposPorCategoria = new Map<string, typeof documentos>();
+
+documentos.forEach((doc) => {
+  const cat = doc.categoria?.trim() || "Otras Investigaciones";
+  if (!gruposPorCategoria.has(cat)) {
+    gruposPorCategoria.set(cat, []);
+  }
+  gruposPorCategoria.get(cat)!.push(doc);
+});
+
+// Ordenar categorías (colocar "Otras Investigaciones" al final)
+const listaCategorias = Array.from(gruposPorCategoria.keys()).sort((a, b) => {
+  if (a.toLowerCase().includes("otras") || a.toLowerCase().includes("general")) return 1;
+  if (b.toLowerCase().includes("otras") || b.toLowerCase().includes("general")) return -1;
+  return a.localeCompare(b);
+});
+---
+
+<div class="relative flex-1 flex flex-col w-full animate-rise isolate overflow-x-clip">
+  <!-- Atmósfera superior con SkyShader -->
+  <div
+    class="absolute inset-x-0 top-0 h-[360px] -z-10 overflow-hidden pointer-events-none"
+    style="mask-image: linear-gradient(180deg, black 0%, black 45%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, black 0%, black 45%, transparent 100%);"
+  >
+    <SkyShader intensity="soft" />
+  </div>
+
+  <div class="flex-1 flex flex-col px-6 md:px-12 pt-10 md:pt-14 pb-16 max-w-7xl w-full mx-auto gap-8">
+    <!-- Encabezado de Repositorio -->
+    <header class="relative z-20 flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-black/[0.06]">
+      <div class="flex flex-col gap-2 max-w-2xl">
+        <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#0064c1]">
+          <span class="h-2 w-2 rounded-full bg-[#0064c1]"></span>
+          Colección Seleccionada
+        </div>
+
+        <h1 class="m-0 text-[clamp(2rem,3.4vw,2.8rem)] font-bold text-[#0a0a0a] tracking-[-0.035em] leading-[1.08] mix-blend-multiply opacity-95">
+          Documentos disponibles
+        </h1>
+
+        <p class="m-0 text-sm text-[#787774] font-medium tracking-tight">
+          Explora la producción académica agrupada por categorías o consulta fichas técnicas individuales.
+        </p>
+      </div>
+
+      <!-- Filtros: Desplegable Personalizado a la Izquierda y Buscador a la Derecha -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+        <!-- 1. Desplegable Personalizado de Categorías (Lado Izquierdo) -->
+        <div class="relative inline-block text-left">
+          <button
+            type="button"
+            id="btn-dropdown-categoria"
+            class="group/drop flex items-center justify-between gap-2.5 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/80 shadow-[0_4px_16px_-4px_rgba(9,60,120,0.1)] hover:border-[#0064c1]/40 focus:border-[#0064c1] transition-all cursor-pointer w-full sm:w-auto min-w-[210px]"
+            aria-expanded="false"
+            aria-haspopup="true"
+          >
+            <div class="flex items-center gap-2 min-w-0">
+              <LayersMinimalisticIcon size={16} className="text-[#0064c1] shrink-0" />
+
+              <span
+                id="texto-categoria-activa"
+                class="text-xs font-bold text-[#0a0a0a] truncate max-w-[150px] sm:max-w-[170px]"
+              >
+                Todas las categorías
+              </span>
+            </div>
+            <span
+              id="badge-total-categoria-activa"
+              class="font-mono text-[0.68rem] font-bold text-[#0064c1] bg-[#0064c1]/10 px-2 py-0.5 rounded-full shrink-0"
+            >
+              {documentos.length}
+            </span>
+            <AltArrowDownIcon
+              size={14}
+              strokeWidth={2.5}
+              className="text-[#787774] group-hover/drop:text-[#0064c1] transition-transform duration-200 shrink-0"
+              id="flecha-dropdown-categoria"
+            />
+          </button>
+
+          <!-- Menú Flotante Personalizado del Desplegable -->
+          <div
+            id="menu-desplegable-categorias"
+            class="hidden absolute left-0 sm:left-0 top-[115%] z-50 flex-col gap-1 p-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-white/90 shadow-[0_20px_40px_-10px_rgba(9,60,120,0.22),0_1px_3px_rgba(0,0,0,0.04)] animate-rise min-w-[260px] max-w-sm max-h-72 overflow-y-auto custom-scrollbar"
+          >
+            <!-- Opción: Todas las Categorías -->
+            <button
+              type="button"
+              data-cat-valor="todas"
+              data-cat-label="Todas las categorías"
+              data-cat-total={documentos.length}
+              class="opcion-categoria-item flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-left hover:bg-[#0064c1]/10 text-xs text-[#0a0a0a] font-semibold transition-colors cursor-pointer w-full group bg-[#0064c1]/[0.08]"
+            >
+              <div class="flex items-center gap-2 min-w-0">
+                <LayersMinimalisticIcon size={15} className="text-[#0064c1] shrink-0" />
+                <span class="truncate">Todas las categorías</span>
+              </div>
+              <span class="font-mono text-[0.68rem] font-bold text-[#0064c1] bg-[#0064c1]/10 px-2 py-0.5 rounded-full shrink-0">
+                {documentos.length}
+              </span>
+            </button>
+
+            <div class="h-px bg-black/[0.05] my-1 mx-1"></div>
+
+            <!-- Opciones individuales de categoría -->
+            {
+              listaCategorias.map((cat) => {
+                const totalDocs = gruposPorCategoria.get(cat)?.length || 0;
+                return (
+                  <button
+                    type="button"
+                    data-cat-valor={cat.toLowerCase()}
+                    data-cat-label={cat}
+                    data-cat-total={totalDocs}
+                    class="opcion-categoria-item flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-left hover:bg-[#0064c1]/10 text-xs text-[#0a0a0a] font-medium transition-colors cursor-pointer w-full group"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <BookBookmarkIcon size={14} className="text-[#787774] group-hover:text-[#0064c1] shrink-0" />
+                      <span class="truncate group-hover:text-[#0064c1]">{cat}</span>
+                    </div>
+                    <span class="font-mono text-[0.68rem] font-semibold text-[#787774] bg-black/[0.04] group-hover:bg-[#0064c1]/10 group-hover:text-[#0064c1] px-2 py-0.5 rounded-full shrink-0">
+                      {totalDocs}
+                    </span>
+                  </button>
+                );
+              })
+            }
+          </div>
+        </div>
+
+        <!-- 2. Buscador Inteligente (Lado Derecho) -->
+        <div class="relative w-full sm:w-72">
+          <div class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/80 shadow-[0_4px_16px_-4px_rgba(9,60,120,0.1)] focus-within:border-[#0064c1]/40 focus-within:shadow-[0_4px_20px_-2px_rgba(0,100,193,0.18)] transition-all">
+            <RoundedMagnifierZoomInIcon size={16} className="text-[#787774] shrink-0" />
+            <input
+              id="buscador-repositorio"
+              type="text"
+              autocomplete="off"
+              placeholder="Buscar por título, autor, país..."
+              class="bg-transparent border-none outline-none text-xs font-medium text-[#0a0a0a] placeholder:text-[#787774] w-full"
+            />
+            <button
+              id="btn-limpiar-busqueda"
+              type="button"
+              class="hidden text-[#787774] hover:text-[#0a0a0a] transition-colors cursor-pointer"
+              aria-label="Limpiar búsqueda"
+            >
+              <CloseCircleIcon size={15} />
+            </button>
+          </div>
+
+          <!-- Panel Desplegable de Sugerencias Inteligentes -->
+          <div
+            id="panel-sugerencias-repositorio"
+            class="hidden absolute left-0 right-0 top-[115%] z-50 flex-col gap-1 p-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-white/90 shadow-[0_16px_36px_-10px_rgba(9,60,120,0.22),0_1px_3px_rgba(0,0,0,0.04)] animate-rise max-h-72 overflow-y-auto custom-scrollbar"
+          >
+            <!-- Las sugerencias se inyectan dinámicamente con JS -->
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenedor Principal de Secciones por Categoría o Empty State -->
+    {
+      documentos.length === 0 ? (
+        <div class="flex flex-col items-center justify-center p-12 sm:p-16 rounded-[32px] bg-white/95 border border-white/80 shadow-[0_20px_45px_-18px_rgba(9,60,120,0.14),0_1px_3px_rgba(0,0,0,0.03)] backdrop-blur-md text-center max-w-md mx-auto w-full gap-3 animate-rise">
+          <div class="grid h-16 w-16 place-items-center rounded-2xl bg-[#0064c1]/10 text-[#0064c1]">
+            <LibraryIcon size={32} strokeWidth={1.5} />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <h3 class="m-0 text-lg font-bold text-[#0a0a0a]">No hay documentos publicados</h3>
+            <p class="m-0 text-xs text-[#787774] leading-relaxed">
+              Actualmente no se encuentran publicaciones ni investigaciones registradas en el catálogo.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div id="contenedor-secciones-repositorio" class="flex flex-col gap-12">
+          {
+            listaCategorias.map((nombreCategoria) => {
+              const docsEnCat = gruposPorCategoria.get(nombreCategoria) || [];
+              return (
+                <section
+                  class="seccion-categoria-repositorio flex flex-col gap-5 animate-rise"
+                  data-categoria-nombre={nombreCategoria.toLowerCase()}
+                >
+                  {/* Encabezado de la Sección de Categoría */}
+                  <div class="flex items-center justify-between gap-3 pb-3 border-b border-black/[0.06]">
+                    <div class="flex items-center gap-3">
+                      <span
+                        class="grid h-9 w-9 place-items-center rounded-xl text-[#0064c1] bg-[#0064c1]/10 border border-[#0064c1]/20 shadow-xs"
+                      >
+                        <BookBookmarkIcon size={18} strokeWidth={2} />
+                      </span>
+                      <div class="flex items-center gap-2.5 flex-wrap">
+                        <h2 class="m-0 text-lg md:text-xl font-bold text-[#0a0a0a] tracking-tight">
+                          {nombreCategoria}
+                        </h2>
+                        <span class="inline-flex items-center font-mono text-xs font-bold text-[#0064c1] bg-[#0064c1]/10 px-2.5 py-0.5 rounded-full border border-[#0064c1]/20">
+                          {docsEnCat.length} {docsEnCat.length === 1 ? "documento" : "documentos"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Grid de Cards de esta Categoría */}
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    {docsEnCat.map((doc) => (
+                      <div
+                        class="item-documento-repositorio"
+                        data-titulo={doc.titulo.toLowerCase()}
+                        data-linea={doc.lineaInvestigacion.toLowerCase()}
+                        data-categoria={(doc.categoria || "otras investigaciones").toLowerCase()}
+                        data-pais={doc.pais.toLowerCase()}
+                        data-fuente={doc.tipoFuente.toLowerCase()}
+                        data-autores={doc.autores.join(" ").toLowerCase()}
+                        data-texto={`${doc.titulo} ${doc.lineaInvestigacion} ${doc.categoria || ""} ${doc.pais} ${doc.tipoFuente} ${doc.autores?.join(" ") || ""}`.toLowerCase()}
+                      >
+                        <CardDocumentoRepositorio documento={doc} />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })
+          }
+
+          {/* Mensaje de Sin Resultados tras filtrar */}
+          <div
+            id="mensaje-sin-resultados"
+            class="hidden flex-col items-center justify-center p-12 rounded-[28px] bg-white/95 border border-white/80 shadow-[0_20px_45px_-18px_rgba(9,60,120,0.14)] text-center max-w-md mx-auto w-full gap-2 animate-rise"
+          >
+            <div class="grid h-12 w-12 place-items-center rounded-2xl bg-[#0064c1]/10 text-[#0064c1]">
+              <RoundedMagnifierZoomInIcon size={24} />
+            </div>
+            <h3 class="m-0 text-base font-bold text-[#0a0a0a]">No se encontraron documentos</h3>
+            <p class="m-0 text-xs text-[#787774]">
+              Intenta cambiar la categoría seleccionada o buscar con otros términos.
+            </p>
+          </div>
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<script>
+  function setupRepositorio() {
+    const input = document.getElementById("buscador-repositorio") as HTMLInputElement | null;
+    const selectCategoria = document.getElementById("filtro-categoria-repositorio") as HTMLSelectElement | null;
+    const btnLimpiar = document.getElementById("btn-limpiar-busqueda") as HTMLButtonElement | null;
+    const panelSugerencias = document.getElementById("panel-sugerencias-repositorio") as HTMLElement | null;
+    const mensajeSinResultados = document.getElementById("mensaje-sin-resultados") as HTMLElement | null;
+    const secciones = document.querySelectorAll<HTMLElement>(".seccion-categoria-repositorio");
+    const items = document.querySelectorAll<HTMLElement>(".item-documento-repositorio");
+
+    // Construir índice de términos sugeribles
+    const indicesSugerencias: { tipo: "titulo" | "autor" | "pais" | "linea" | "categoria"; texto: string; label: string }[] = [];
+    const terminosVistos = new Set<string>();
+
+    items.forEach((item) => {
+      const titulo = item.querySelector("h3")?.textContent?.trim() || "";
+      const linea = item.getAttribute("data-linea") || "";
+      const categoria = item.getAttribute("data-categoria") || "";
+      const pais = item.getAttribute("data-pais") || "";
+      const autoresRaw = item.getAttribute("data-autores") || "";
+
+      if (titulo && !terminosVistos.has(`t:${titulo.toLowerCase()}`)) {
+        terminosVistos.add(`t:${titulo.toLowerCase()}`);
+        indicesSugerencias.push({ tipo: "titulo", texto: titulo, label: "Documento" });
+      }
+
+      if (categoria && !terminosVistos.has(`c:${categoria.toLowerCase()}`)) {
+        terminosVistos.add(`c:${categoria.toLowerCase()}`);
+        indicesSugerencias.push({ tipo: "categoria", texto: categoria, label: "Categoría" });
+      }
+
+      if (linea && !terminosVistos.has(`l:${linea.toLowerCase()}`)) {
+        terminosVistos.add(`l:${linea.toLowerCase()}`);
+        indicesSugerencias.push({ tipo: "linea", texto: linea, label: "Línea de investigación" });
+      }
+
+      if (pais && !terminosVistos.has(`p:${pais.toLowerCase()}`)) {
+        terminosVistos.add(`p:${pais.toLowerCase()}`);
+        indicesSugerencias.push({ tipo: "pais", texto: pais, label: "País" });
+      }
+
+      // Autores individuales
+      autoresRaw.split(/,\s*|\s+/).filter(Boolean).forEach((autor) => {
+        if (autor.length > 2 && !terminosVistos.has(`a:${autor.toLowerCase()}`)) {
+          terminosVistos.add(`a:${autor.toLowerCase()}`);
+          indicesSugerencias.push({ tipo: "autor", texto: autor, label: "Autor" });
+        }
+      });
+    });
+
+    // Función unificada de filtrado (Categoría + Búsqueda de texto)
+    const filtrarDocumentos = () => {
+      const q = (input?.value || "").toLowerCase().trim();
+      const catSeleccionada = (selectCategoria?.value || "todas").toLowerCase().trim();
+
+      if (btnLimpiar) {
+        btnLimpiar.classList.toggle("hidden", !q);
+      }
+
+      let totalVisibles = 0;
+
+      secciones.forEach((seccion) => {
+        const catNombre = (seccion.getAttribute("data-categoria-nombre") || "").toLowerCase().trim();
+        const itemsDeSeccion = seccion.querySelectorAll<HTMLElement>(".item-documento-repositorio");
+        let visiblesEnSeccion = 0;
+
+        // Comprobar si la categoría coincide
+        const coincideCategoria = catSeleccionada === "todas" || catNombre === catSeleccionada;
+
+        itemsDeSeccion.forEach((item) => {
+          const texto = item.getAttribute("data-texto") || "";
+          const coincideTexto = !q || texto.includes(q);
+
+          if (coincideCategoria && coincideTexto) {
+            item.style.display = "";
+            visiblesEnSeccion++;
+            totalVisibles++;
+          } else {
+            item.style.display = "none";
+          }
+        });
+
+        // Mostrar u ocultar toda la sección si no tiene elementos visibles
+        if (visiblesEnSeccion > 0) {
+          seccion.style.display = "";
+        } else {
+          seccion.style.display = "none";
+        }
+      });
+
+      if (mensajeSinResultados) {
+        if (totalVisibles === 0) {
+          mensajeSinResultados.classList.remove("hidden");
+          mensajeSinResultados.classList.add("flex");
+        } else {
+          mensajeSinResultados.classList.add("hidden");
+          mensajeSinResultados.classList.remove("flex");
+        }
+      }
+    };
+
+    const actualizarSugerencias = (termino: string) => {
+      if (!panelSugerencias) return;
+      const q = termino.toLowerCase().trim();
+
+      if (!q || q.length < 2) {
+        panelSugerencias.innerHTML = "";
+        panelSugerencias.classList.add("hidden");
+        panelSugerencias.classList.remove("flex");
+        return;
+      }
+
+      const coincidencias = indicesSugerencias
+        .filter((s) => s.texto.toLowerCase().includes(q))
+        .slice(0, 6);
+
+      if (coincidencias.length === 0) {
+        panelSugerencias.innerHTML = `
+          <div class="px-3 py-2 text-xs text-[#787774] text-center">
+            No hay sugerencias para "<strong>${termino}</strong>"
+          </div>
+        `;
+        panelSugerencias.classList.remove("hidden");
+        panelSugerencias.classList.add("flex");
+        return;
+      }
+
+      const html = coincidencias
+        .map((s) => {
+          const icono =
+            s.tipo === "titulo"
+              ? "📄"
+              : s.tipo === "autor"
+              ? "👤"
+              : s.tipo === "pais"
+              ? "🌎"
+              : s.tipo === "categoria"
+              ? "🗂️"
+              : "🏷️";
+
+          return `
+            <button
+              type="button"
+              data-sugerencia="${s.texto}"
+              data-tipo="${s.tipo}"
+              class="sugerencia-item flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-left hover:bg-[#0064c1]/10 text-xs text-[#0a0a0a] transition-colors cursor-pointer w-full group"
+            >
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="text-sm shrink-0">${icono}</span>
+                <span class="font-medium truncate group-hover:text-[#0064c1]">${s.texto}</span>
+              </div>
+              <span class="text-[0.66rem] font-bold text-[#787774] group-hover:text-[#0064c1] font-mono shrink-0 uppercase">${s.label}</span>
+            </button>
+          `;
+        })
+        .join("");
+
+      panelSugerencias.innerHTML = html;
+      panelSugerencias.classList.remove("hidden");
+      panelSugerencias.classList.add("flex");
+
+      panelSugerencias.querySelectorAll<HTMLButtonElement>(".sugerencia-item").forEach((btn) => {
+        btn.onclick = () => {
+          const val = btn.getAttribute("data-sugerencia") || "";
+          const tipo = btn.getAttribute("data-tipo");
+          if (tipo === "categoria" && selectCategoria) {
+            selectCategoria.value = val.toLowerCase();
+          } else if (input) {
+            input.value = val;
+          }
+          filtrarDocumentos();
+          panelSugerencias.classList.add("hidden");
+          panelSugerencias.classList.remove("flex");
+        };
+      });
+    };
+
+    if (selectCategoria) {
+      selectCategoria.addEventListener("change", filtrarDocumentos);
+    }
+
+    if (input) {
+      input.addEventListener("input", () => {
+        filtrarDocumentos();
+        actualizarSugerencias(input.value);
+      });
+
+      input.addEventListener("focus", () => {
+        if (input.value.trim().length >= 2) {
+          actualizarSugerencias(input.value);
+        }
+      });
+    }
+
+    if (btnLimpiar && input) {
+      btnLimpiar.onclick = () => {
+        input.value = "";
+        if (selectCategoria) selectCategoria.value = "todas";
+        filtrarDocumentos();
+        actualizarSugerencias("");
+        input.focus();
+      };
+    }
+
+    // Cerrar sugerencias al hacer click afuera
+    document.addEventListener("click", (e) => {
+      if (
+        panelSugerencias &&
+        input &&
+        !input.contains(e.target as Node) &&
+        !panelSugerencias.contains(e.target as Node)
+      ) {
+        panelSugerencias.classList.add("hidden");
+        panelSugerencias.classList.remove("flex");
+      }
+    });
+
+    // 2. Identidad de usuario
+    let usuarioId = "";
+    let usuarioEmail = "";
+    try {
+      const sesionRaw = localStorage.getItem("observatorio_usuario_sesion");
+      if (sesionRaw) {
+        const sesion = JSON.parse(sesionRaw);
+        usuarioId = sesion.id || sesion.email || "";
+        usuarioEmail = sesion.email || "";
+      }
+    } catch {
+      // Fallback
+    }
+
+    if (!usuarioId) {
+      usuarioId = localStorage.getItem("observatorio_dispositivo_id") || "";
+      if (!usuarioId) {
+        usuarioId = "anon_" + Math.random().toString(36).substring(2, 11);
+        localStorage.setItem("observatorio_dispositivo_id", usuarioId);
+      }
+    }
+
+    // 3. Estilos de botones de Like en Repositorio (solo botón sin contador)
+    const clasesBase = "btn-repo-like group/like relative grid h-10 w-10 place-items-center rounded-full transition-all duration-200 active:scale-95 cursor-pointer shrink-0";
+    const clasesInactivo = `${clasesBase} text-[#787774] bg-white/90 border border-black/[0.08] hover:text-[#0064c1] hover:bg-[#0064c1]/[0.08] shadow-[0_2px_8px_-2px_rgba(9,60,120,0.06)] backdrop-blur-md`;
+    const clasesActivo = `${clasesBase} text-white bg-[#0064c1] border border-[#0064c1] shadow-[0_4px_12px_-2px_rgba(0,100,193,0.4)]`;
+
+    const botonesLike = document.querySelectorAll<HTMLButtonElement>(".btn-repo-like");
+
+    botonesLike.forEach((btn) => {
+      const docId = btn.getAttribute("data-repo-like-btn");
+      if (!docId) return;
+
+      const storageKey = `reaccion_repo_${docId}`;
+
+      const actualizarVisual = (reaccion: string | null) => {
+        if (reaccion === "like") {
+          btn.className = clasesActivo;
+        } else {
+          btn.className = clasesInactivo;
+        }
+      };
+
+      const reaccionGuardada = localStorage.getItem(storageKey);
+      actualizarVisual(reaccionGuardada);
+
+      btn.onclick = async (e) => {
+        e.preventDefault();
+        const reaccionActual = localStorage.getItem(storageKey);
+        const nuevaReaccion = reaccionActual === "like" ? null : "like";
+
+        if (nuevaReaccion) {
+          localStorage.setItem(storageKey, nuevaReaccion);
+        } else {
+          localStorage.removeItem(storageKey);
+        }
+        actualizarVisual(nuevaReaccion);
+
+        try {
+          const res = await fetch("/api/reacciones", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tipoContenido: "repositorio",
+              contenidoId: docId,
+              usuarioId,
+              usuarioEmail,
+              reaccion: nuevaReaccion,
+            }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.exito) {
+              actualizarVisual(data.reaccionActual);
+            }
+          }
+        } catch (error) {
+          console.error("Error al persistir reacción de repositorio:", error);
+        }
+      };
+    });
+
+    // 4. Sincronizar estado remoto
+    if (usuarioId) {
+      fetch(`/api/reacciones?tipoContenido=repositorio&usuarioId=${encodeURIComponent(usuarioId)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && data.exito && Array.isArray(data.reacciones)) {
+            data.reacciones.forEach((item: { contenido_id: string; reaccion: string }) => {
+              const storageKey = `reaccion_repo_${item.contenido_id}`;
+              localStorage.setItem(storageKey, item.reaccion);
+              const boton = document.querySelector<HTMLButtonElement>(`[data-repo-like-btn="${item.contenido_id}"]`);
+              if (boton) {
+                if (item.reaccion === "like") {
+                  boton.className = clasesActivo;
+                } else {
+                  boton.className = clasesInactivo;
+                }
+              }
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", setupRepositorio);
+  document.addEventListener("astro:page-load", setupRepositorio);
+</script>

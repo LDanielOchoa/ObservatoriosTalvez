@@ -1,0 +1,40 @@
+---
+import "../../../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Sidebar from "../../../components/Sidebar.astro";
+import FormToasts from "../../../components/FormToasts";
+import { FormularioCrearUsuario } from "../../../modules/usuarios";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Crear nuevo usuario para la Red de Aprendizaje del Observatorio"
+    />
+    <title>Nuevo Usuario · Observatorio</title>
+    <ClientRouter />
+  </head>
+  <body class="bg-[#fbfbfa] text-[#0a0a0a]">
+    <div class="flex min-h-svh w-full">
+      <!-- Barra lateral con Usuarios Estudiantes activo -->
+      <Sidebar active="Usuarios Estudiantes" />
+
+      <!-- Contenido de la Página de Creación -->
+      <main class="flex-1 flex flex-col min-w-0">
+        <FormularioCrearUsuario />
+      </main>
+    </div>
+
+    <!-- Toast oficial de HeroUI con redirección opcional o feedback -->
+    <FormToasts
+      client:load
+      formId="form-crear-usuario"
+      successTitle="Usuario registrado"
+      successDescription="El usuario ha sido registrado exitosamente en la Red de Aprendizaje."
+    />
+  </body>
+</html>

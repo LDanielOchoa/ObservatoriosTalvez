@@ -1,0 +1,13 @@
+export { default as EncabezadoRed } from "./components/EncabezadoRed.astro";
+export { default as FormularioRegistroRed } from "./components/FormularioRegistroRed.astro";
+export { default as ContenidoRedAprendizaje } from "./components/ContenidoRedAprendizaje.astro";
+export { default as TablaInscripcionesRed } from "./components/TablaInscripcionesRed";
+export { default as ContenidoCorreosRed } from "./components/ContenidoCorreosRed.astro";
+export { default as GestionCorreosRed } from "./components/GestionCorreosRed";
+export * from "./constants/opciones-fecha";
+export * from "./services/red.service";
+export * from "./services/red.types";
+export * from "./services/inscripciones.service";
+export * from "./services/inscripciones.types";
+export * from "./services/correos.service";
+export * from "./services/correos.types";

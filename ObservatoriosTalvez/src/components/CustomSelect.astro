@@ -1,0 +1,195 @@
+---
+import { DoubleAltArrowDownIcon } from "@solar-icons/react/bold-duotone/double-alt-arrow-down";
+import { CheckCircleIcon } from "@solar-icons/react/bold-duotone/check-circle";
+import { fieldControl, fieldControlFocusButton, fieldLabel } from "./fieldClasses";
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  name: string;
+  label: string;
+  placeholder?: string;
+  options: Option[];
+  required?: boolean;
+}
+
+const {
+  name,
+  label,
+  placeholder = "Selecciona",
+  options,
+  required = false,
+} = Astro.props;
+---
+
+<div class="group/field flex flex-col gap-2" data-select data-required={required}>
+  <span class={fieldLabel}>
+    {label}
+  </span>
+
+  <div class="relative">
+    <button
+      type="button"
+      data-select-trigger
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      class:list={[
+        fieldControl,
+        fieldControlFocusButton,
+        "group/trigger flex items-center justify-between gap-3 px-4 py-3.5 text-left text-base tracking-[-0.01em] outline-none cursor-pointer",
+      ]}
+    >
+      <span
+        data-select-value
+        class="text-[#787774] transition-colors duration-300 data-[filled]:text-[#0a0a0a]"
+      >
+        {placeholder}
+      </span>
+      <DoubleAltArrowDownIcon
+        size={18}
+        strokeWidth={1.5}
+        className="shrink-0 text-[#787774] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-data-[open]/trigger:rotate-180"
+      />
+    </button>
+
+    <ul
+      role="listbox"
+      data-select-list
+      tabindex="-1"
+      class="absolute z-30 left-0 right-0 mt-2 max-h-60 overflow-auto overscroll-contain p-1.5 rounded-2xl border border-black/10 bg-white shadow-[0_12px_32px_-12px_rgba(10,30,70,0.15)] origin-top opacity-0 scale-[0.97] -translate-y-1 pointer-events-none transition-all duration-200 ease-out data-[open]:opacity-100 data-[open]:scale-100 data-[open]:translate-y-0 data-[open]:pointer-events-auto outline-none"
+    >
+      {
+        options.map((opt) => (
+          <li
+            role="option"
+            aria-selected="false"
+            data-value={opt.value}
+            class="group/opt flex items-center justify-between gap-2 px-4 py-2.5 rounded-full cursor-pointer text-[#2f3437] text-[0.95rem] tracking-[-0.01em] transition-colors duration-200 hover:bg-[#f1f0ec] data-[active]:bg-[#f1f0ec] aria-selected:text-[#0064c1] aria-selected:font-medium"
+          >
+            <span>{opt.label}</span>
+            <CheckCircleIcon
+              size={16}
+              strokeWidth={1.5}
+              className="opacity-0 scale-75 transition-all duration-200 text-[#0064c1] group-aria-selected/opt:opacity-100 group-aria-selected/opt:scale-100"
+            />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <input type="hidden" name={name} data-select-input required={required} />
+</div>
+
+<script>
+  function initSelect(root: HTMLElement) {
+    const trigger = root.querySelector<HTMLButtonElement>(
+      "[data-select-trigger]",
+    );
+    const list = root.querySelector<HTMLUListElement>("[data-select-list]");
+    const valueEl = root.querySelector<HTMLElement>("[data-select-value]");
+    const input = root.querySelector<HTMLInputElement>("[data-select-input]");
+    if (!trigger || !list || !valueEl || !input) return;
+
+    const options = Array.from(
+      list.querySelectorAll<HTMLElement>('[role="option"]'),
+    );
+    let open = false;
+    let activeIndex = -1;
+
+    const setOpen = (next: boolean) => {
+      open = next;
+      if (open) {
+        trigger.setAttribute("data-open", "");
+        trigger.setAttribute("aria-expanded", "true");
+        list.setAttribute("data-open", "");
+        const selected = options.findIndex(
+          (o) => o.getAttribute("aria-selected") === "true",
+        );
+        setActive(selected >= 0 ? selected : 0);
+      } else {
+        trigger.removeAttribute("data-open");
+        trigger.setAttribute("aria-expanded", "false");
+        list.removeAttribute("data-open");
+        setActive(-1);
+      }
+    };
+
+    const setActive = (index: number) => {
+      activeIndex = index;
+      options.forEach((opt, i) => {
+        if (i === index) {
+          opt.setAttribute("data-active", "");
+          opt.scrollIntoView({ block: "nearest" });
+        } else {
+          opt.removeAttribute("data-active");
+        }
+      });
+    };
+
+    const choose = (opt: HTMLElement) => {
+      options.forEach((o) => o.setAttribute("aria-selected", "false"));
+      opt.setAttribute("aria-selected", "true");
+      input.value = opt.dataset.value ?? "";
+      valueEl.textContent = opt.textContent?.trim() ?? "";
+      valueEl.setAttribute("data-filled", "");
+      setOpen(false);
+      trigger.focus();
+    };
+
+    trigger.addEventListener("click", () => setOpen(!open));
+
+    trigger.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!open) setOpen(true);
+      }
+    });
+
+    list.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+        trigger.focus();
+      }
+    });
+
+    options.forEach((opt, i) => {
+      opt.addEventListener("click", () => choose(opt));
+      opt.addEventListener("mousemove", () => {
+        if (activeIndex !== i) setActive(i);
+      });
+    });
+
+    root.addEventListener("keydown", (e) => {
+      if (!open) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActive(Math.min(activeIndex + 1, options.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActive(Math.max(activeIndex - 1, 0));
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (activeIndex >= 0) choose(options[activeIndex]);
+      } else if (e.key === "Escape") {
+        setOpen(false);
+        trigger.focus();
+      } else if (e.key === "Tab") {
+        setOpen(false);
+      }
+    });
+
+    root.setAttribute("data-initialized", "true");
+  }
+
+  function setupAllSelects() {
+    document.querySelectorAll<HTMLElement>("[data-select]:not([data-initialized])").forEach(initSelect);
+  }
+
+  setupAllSelects();
+  document.addEventListener("astro:page-load", setupAllSelects);
+</script>

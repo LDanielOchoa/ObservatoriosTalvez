@@ -1,0 +1,113 @@
+---
+import Input from "../../../components/Input.astro";
+import { Link } from "@heroui/react";
+import {
+  LetterIcon,
+  LockIcon,
+  ArrowRightIcon,
+} from "@solar-icons/react/outline";
+---
+
+<div
+  class="w-full max-w-[30rem] shrink-0 bg-white/95 border border-white/60 rounded-[24px] md:rounded-[28px] p-7 md:p-10 shadow-[0_30px_70px_-24px_rgba(9,60,120,0.45)] max-h-[calc(100svh-3rem)] overflow-y-auto animate-rise"
+  style="animation-delay: 0.25s"
+>
+  <div
+    class="flex flex-col items-center gap-3 text-center pb-6 mb-6 border-b border-black/5"
+  >
+    <img
+      src="/Group 19.svg"
+      alt="Logo Observatorio de Responsabilidad Social y Sostenibilidad"
+      class="h-12 w-auto object-contain transition-transform duration-300 hover:scale-[1.02]"
+    />
+    <h2
+      class="m-0 text-[clamp(1.25rem,1.8vw,1.5rem)] font-[600] tracking-[-0.02em] text-[#0a0a0a]"
+    >
+      Inicia sesión
+    </h2>
+    <p
+      class="m-0 -mt-1 text-[#2f3437] text-sm leading-[1.55] tracking-[-0.01em]"
+    >
+      para ver el contenido de la plataforma.
+    </p>
+  </div>
+
+  <!-- Formulario de Acceso -->
+  <form
+    id="form-login"
+    class="flex flex-col gap-5 w-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+    action="#"
+    method="post"
+  >
+    <div class="animate-rise" style="animation-delay: 0.35s">
+      <Input
+        name="email"
+        label="Correo"
+        type="email"
+        placeholder="nombre@ejemplo.com"
+        autocomplete="email"
+        icon={LetterIcon}
+        required
+      />
+    </div>
+
+    <div class="animate-rise" style="animation-delay: 0.42s">
+      <Input
+        name="password"
+        label="Contraseña"
+        type="password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+        icon={LockIcon}
+        required
+      />
+    </div>
+
+    <div class="animate-rise" style="animation-delay: 0.5s">
+      <button
+        type="submit"
+        id="btn-login-submit"
+        class="group relative w-full inline-flex items-center justify-center gap-2 mt-1 px-8 py-4 rounded-full text-white text-base font-semibold tracking-[-0.01em] whitespace-nowrap cursor-pointer overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.985] focus-visible:outline-2 focus-visible:outline-[#0064c1] focus-visible:outline-offset-[3px] disabled:opacity-85 disabled:cursor-not-allowed disabled:pointer-events-none"
+        style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 8px 22px -6px rgba(58,138,244,0.4), 0 6px 32px -2px rgba(120,185,255,0.58); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+      >
+        <!-- Estado normal -->
+        <span id="btn-login-content" class="relative z-10 flex items-center justify-center gap-2 transition-opacity duration-200">
+          <span>Entrar</span>
+          <ArrowRightIcon
+            size={18}
+            strokeWidth={2}
+            className="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+          />
+        </span>
+
+        <!-- Microanimación de loader en estado analizando -->
+        <span id="btn-login-loader" class="hidden relative z-10 items-center justify-center gap-2.5 transition-opacity duration-200">
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+            <path class="opacity-95" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-sm font-medium">Analizando...</span>
+        </span>
+
+        <!-- Estado de espera por rate limit -->
+        <span id="btn-login-blocked" class="hidden relative z-10 items-center justify-center gap-2 transition-opacity duration-200">
+          <svg class="h-4 w-4 text-white animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span id="btn-login-blocked-text" class="text-sm font-semibold">Espera 60s...</span>
+        </span>
+      </button>
+    </div>
+
+    <div
+      class="flex flex-col items-center gap-3 mt-6 pt-5 border-t border-black/5 animate-rise"
+      style="animation-delay: 0.58s"
+    >
+      <Link href="/red" className="text-sm font-medium text-[#0064c1]">
+        Red de aprendizaje
+        <Link.Icon />
+      </Link>
+    </div>
+  </form>
+</div>

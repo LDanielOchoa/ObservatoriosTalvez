@@ -1,0 +1,157 @@
+---
+import CustomSelect from "../../../components/CustomSelect.astro";
+import Input from "../../../components/Input.astro";
+import { Link } from "@heroui/react";
+import { mesesOpciones, semestresOpciones } from "../constants/opciones-fecha";
+import {
+  UserIcon,
+  LetterIcon,
+  CardIcon,
+  PhoneIcon,
+  CalendarIcon,
+  BookIcon,
+  ArrowRightIcon,
+} from "@solar-icons/react/outline";
+---
+
+<form
+  id="form-register"
+  class="flex flex-col gap-4 w-full animate-rise"
+  style="animation-delay: 0.2s"
+  action="#"
+  method="post"
+>
+  <Input
+    name="nombre"
+    label="Nombre completo"
+    placeholder="Tu nombre completo"
+    autocomplete="name"
+    icon={UserIcon}
+    required
+  />
+
+  <Input
+    name="email"
+    label="Correo electrónico"
+    type="email"
+    placeholder="tu.correo@ejemplo.com"
+    autocomplete="email"
+    icon={LetterIcon}
+    required
+  />
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <Input
+      name="cedula"
+      label="Cédula"
+      inputmode="numeric"
+      placeholder="0000000000"
+      icon={CardIcon}
+      required
+    />
+    <Input
+      name="telefono"
+      label="Teléfono"
+      type="tel"
+      placeholder="300 123 4567"
+      autocomplete="tel"
+      icon={PhoneIcon}
+      required
+    />
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <span
+      class="flex items-center gap-2 text-[#0a0a0a] text-sm font-[560] tracking-[-0.01em]"
+    >
+      <CalendarIcon
+        size={18}
+        strokeWidth={1.5}
+        className="text-[#0064c1]"
+      />
+      Fecha de nacimiento
+    </span>
+    <div class="grid grid-cols-[1fr_1.4fr_1fr] gap-3">
+      <Input
+        name="dia"
+        label="Día"
+        type="number"
+        placeholder="Día"
+        min="1"
+        max="31"
+        required
+      />
+      <CustomSelect
+        name="mes"
+        label="Mes"
+        placeholder="Mes"
+        options={mesesOpciones}
+        required
+      />
+      <Input
+        name="anio"
+        label="Año"
+        type="number"
+        placeholder="Año"
+        min="1950"
+        max="2010"
+        required
+      />
+    </div>
+  </div>
+
+  <Input
+    name="universidad"
+    label="Universidad"
+    placeholder="Nombre de tu universidad"
+    icon={BookIcon}
+    required
+  />
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <CustomSelect
+      name="semestre"
+      label="Semestre"
+      placeholder="Selecciona"
+      options={semestresOpciones}
+      required
+    />
+    <Input
+      name="carrera"
+      label="Carrera"
+      placeholder="Tu carrera"
+      required
+    />
+  </div>
+
+  <button
+    type="submit"
+    id="btn-register-submit"
+    class="group relative w-full inline-flex items-center justify-center gap-2 mt-2 px-8 py-4 rounded-full text-white text-base font-semibold tracking-[-0.01em] whitespace-nowrap cursor-pointer overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.985] focus-visible:outline-2 focus-visible:outline-[#0064c1] focus-visible:outline-offset-[3px] disabled:opacity-85 disabled:cursor-not-allowed disabled:pointer-events-none"
+    style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 8px 22px -6px rgba(58,138,244,0.4), 0 6px 32px -2px rgba(120,185,255,0.58); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+  >
+    <span id="btn-register-content" class="relative z-10 flex items-center justify-center gap-2 transition-opacity duration-200">
+      <span>Unirme a la red</span>
+      <ArrowRightIcon
+        size={18}
+        strokeWidth={2}
+        className="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+      />
+    </span>
+
+    <span id="btn-register-loader" class="hidden relative z-10 items-center justify-center gap-2.5 transition-opacity duration-200">
+      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+        <path class="opacity-95" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-sm font-medium">Registrando...</span>
+    </span>
+  </button>
+
+  <div class="flex justify-center mt-2">
+    <Link href="/" className="text-sm font-medium text-[#0064c1]">
+      Volver al acceso
+      <Link.Icon />
+    </Link>
+  </div>
+</form>

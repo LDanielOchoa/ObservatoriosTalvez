@@ -1,0 +1,277 @@
+---
+interface Props {
+  intensity?: "full" | "soft";
+}
+
+const { intensity = "full" } = Astro.props;
+---
+
+<div
+  class="absolute inset-0 overflow-hidden"
+  data-shader
+  data-intensity={intensity}
+>
+  <div
+    class="absolute inset-0"
+    style="background: radial-gradient(90% 70% at 78% 12%, #6cb6f5 0%, transparent 55%), radial-gradient(70% 48% at 20% 7%, rgba(255,255,255,0.38), transparent 58%), linear-gradient(180deg, #2e90e8 0%, #74b8f2 42%, #d8ecfb 74%, #fbfbfa 100%)"
+  ></div>
+  <canvas
+    class="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] data-[ready]:opacity-100"
+    data-canvas
+    aria-hidden="true"></canvas>
+  <div
+    class="absolute inset-0 opacity-50 mix-blend-overlay bg-[length:180px_180px] animate-grain pointer-events-none"
+    style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;)"
+  ></div>
+</div>
+
+<script>
+  const FRAGMENT = `
+    precision highp float;
+    uniform vec2  u_resolution;
+    uniform float u_time;
+    uniform float u_intensity;
+
+    float hash(vec2 p){
+      vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+      p3 += dot(p3, p3.yzx + 33.33);
+      return fract((p3.x + p3.y) * p3.z);
+    }
+    float noise(vec2 p){
+      vec2 i = floor(p); vec2 f = fract(p);
+      float a = hash(i);
+      float b = hash(i+vec2(1.0,0.0));
+      float c = hash(i+vec2(0.0,1.0));
+      float d = hash(i+vec2(1.0,1.0));
+      vec2 u = f*f*(3.0-2.0*f);
+      return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+    }
+    float fbm(vec2 p){
+      float v = 0.0; float amp = 0.5;
+      for(int i=0;i<5;i++){ v += amp*noise(p); p *= 2.0; amp *= 0.5; }
+      return v;
+    }
+
+    void main(){
+      vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+      float aspect = u_resolution.x / u_resolution.y;
+      vec2 p = uv; p.x *= aspect;
+      float t = u_time * 0.045;
+
+      vec2 q = vec2(fbm(p + vec2(0.0, t)), fbm(p + vec2(4.3, -t * 0.7)));
+      float n  = fbm(p * 1.1 + 1.4 * q + vec2(t * 0.30, 0.0));
+      float n2 = fbm(p * 1.8 + 1.1 * q + vec2(-t * 0.25, t * 0.20));
+
+      vec3 skyTop = vec3(0.165, 0.545, 0.92);
+      vec3 skyMid = vec3(0.42, 0.72, 0.965);
+      vec3 white  = vec3(0.984, 0.984, 0.980);
+
+      float vert = uv.y;
+      vec3 col = mix(white, skyMid, smoothstep(0.0, 0.8, vert));
+      col = mix(col, skyTop, smoothstep(0.5, 1.0, vert));
+
+      float bloom = smoothstep(0.48, 0.92, n2);
+      col = mix(col, white, bloom * 0.8 * (1.0 - vert * 0.35));
+
+      float diag = p.x * 0.6 + p.y * 0.4;
+      float streak = smoothstep(0.5, 1.0, n + 0.30 * sin(diag * 2.4 - t * 1.3));
+      col = mix(col, white, streak * 0.45);
+
+      col = mix(col, skyTop, smoothstep(0.6, 1.0, n) * 0.25 * vert);
+
+      float vig = smoothstep(1.35, 0.25, length(uv - vec2(0.5, 0.55)));
+      col = mix(col, col * 1.02, vig);
+
+      float gseed = mod(floor(u_time * 16.0), 1024.0);
+      float g = hash(gl_FragCoord.xy + gseed);
+      col += (g - 0.5) * 0.02;
+
+      col = mix(col, mix(col, white, 0.45), 1.0 - u_intensity);
+
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+
+  const VERTEX = `
+    attribute vec2 a_pos;
+    void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
+  `;
+
+  function initShader(root: HTMLElement) {
+    const canvas = root.querySelector<HTMLCanvasElement>("[data-canvas]");
+    if (!canvas) return;
+    const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
+    if (!gl) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const intensity = root.dataset.intensity === "soft" ? 0.55 : 1;
+    const resolutionScale = 0.66;
+
+    const compile = (type: number, src: string) => {
+      const shader = gl.createShader(type);
+      if (!shader) return null;
+      gl.shaderSource(shader, src);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.warn("shader", gl.getShaderInfoLog(shader));
+        return null;
+      }
+      return shader;
+    };
+
+    const vs = compile(gl.VERTEX_SHADER, VERTEX);
+    const fs = compile(gl.FRAGMENT_SHADER, FRAGMENT);
+    if (!vs || !fs) return;
+
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+    gl.useProgram(program);
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 3, -1, -1, 3]),
+      gl.STATIC_DRAW
+    );
+    const posLoc = gl.getAttribLocation(program, "a_pos");
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+    const uResolution = gl.getUniformLocation(program, "u_resolution");
+    const uTime = gl.getUniformLocation(program, "u_time");
+    const uIntensity = gl.getUniformLocation(program, "u_intensity");
+    gl.uniform1f(uIntensity, intensity);
+
+    const resize = () => {
+      const w = Math.max(2, Math.floor(root.clientWidth * resolutionScale));
+      const h = Math.max(2, Math.floor(root.clientHeight * resolutionScale));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+        gl.viewport(0, 0, w, h);
+      }
+      gl.uniform2f(uResolution, w, h);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    canvas.setAttribute("data-ready", "");
+
+    let raf = 0;
+    let visible = true;
+    let isTabVisible = !document.hidden;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible && isTabVisible && !reduced) {
+          start();
+        } else {
+          cancelAnimationFrame(raf);
+        }
+      },
+      { threshold: 0 }
+    );
+    observer.observe(root);
+
+    const onVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (isTabVisible && visible && !reduced) {
+        lastFrame = performance.now();
+        start();
+      } else {
+        cancelAnimationFrame(raf);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    const BASE_SPEED = 1;
+    const MAX_SPEED = 6;
+    const SPEED_FACTOR = 1.2;
+    const EASE = 0.08;
+    const DECAY = 0.92;
+    const START_TIME = 45;
+
+    let time = START_TIME;
+    let speed = BASE_SPEED;
+    let burst = 0;
+    let lastFrame = performance.now();
+    let lastX = 0;
+    let lastY = 0;
+    let lastMove = 0;
+    let hasPointer = false;
+
+    const onPointerMove = (e: PointerEvent) => {
+      const now = performance.now();
+      if (hasPointer) {
+        const dt = now - lastMove;
+        if (dt > 0) {
+          const v = Math.hypot(e.clientX - lastX, e.clientY - lastY) / dt;
+          burst = Math.min(MAX_SPEED, v * SPEED_FACTOR);
+        }
+      }
+      lastX = e.clientX;
+      lastY = e.clientY;
+      lastMove = now;
+      hasPointer = true;
+    };
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+
+    const render = () => {
+      gl.uniform1f(uTime, time);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+
+    function tick() {
+      const now = performance.now();
+      let dt = (now - lastFrame) / 1000;
+      lastFrame = now;
+      if (dt > 0.1) dt = 0.1;
+      burst *= DECAY;
+      speed += (BASE_SPEED + burst - speed) * EASE;
+      time += dt * speed;
+      render();
+      if (visible && isTabVisible && !reduced) {
+        raf = requestAnimationFrame(tick);
+      }
+    }
+
+    function start() {
+      cancelAnimationFrame(raf);
+      lastFrame = performance.now();
+      raf = requestAnimationFrame(tick);
+    }
+
+    if (reduced) {
+      time = START_TIME;
+      render();
+    } else if (isTabVisible && visible) {
+      start();
+    }
+
+    // Limpieza de recursos al cambiar de página en Astro
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        cancelAnimationFrame(raf);
+        observer.disconnect();
+        window.removeEventListener("resize", resize);
+        window.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+      },
+      { once: true }
+    );
+  }
+
+  const init = () =>
+    document
+      .querySelectorAll<HTMLElement>("[data-shader]")
+      .forEach(initShader);
+
+  document.addEventListener("astro:page-load", init);
+</script>

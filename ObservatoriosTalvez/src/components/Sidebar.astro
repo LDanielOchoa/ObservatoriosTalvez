@@ -1,0 +1,798 @@
+---
+import {
+  HomeIcon,
+  LibraryIcon,
+  UsersGroupRoundedIcon,
+  NotesIcon,
+  VideocameraIcon,
+  UsersGroupTwoRoundedIcon,
+  FolderWithFilesIcon,
+  ChatSquareIcon,
+  AltArrowLeftIcon,
+  AltArrowDownIcon,
+  LetterIcon,
+  UserPlusIcon,
+  ShieldUserIcon,
+  HamburgerMenuIcon,
+  CloseSquareIcon,
+  Logout2Icon,
+} from "@solar-icons/react/outline";
+
+interface SubItem {
+  href: string;
+  label: string;
+  badge?: string;
+  badgeType?: "count" | "new";
+  icon?: any;
+}
+
+interface Item {
+  href?: string;
+  label: string;
+  icon: any;
+  badge?: string;
+  badgeType?: "count" | "new";
+  subItems?: SubItem[];
+}
+
+interface Props {
+  active?: string;
+}
+
+const { active = "Inicio" } = Astro.props;
+
+const explorar: Item[] = [
+  { href: "/dashboard", label: "Inicio", icon: HomeIcon },
+  { href: "/dashboard/repositorio", label: "Repositorio", icon: LibraryIcon, badge: "48" },
+  { href: "/dashboard/news", label: "News Feed", icon: NotesIcon, badge: "3" },
+  { href: "/dashboard/youtube", label: "Youtube Feed", icon: VideocameraIcon, badge: "1" },
+];
+
+const administracion: Item[] = [
+  {
+    label: "Usuarios",
+    icon: UsersGroupTwoRoundedIcon,
+    subItems: [
+      {
+        href: "/dashboard/usuarios",
+        label: "Usuarios Estudiantes",
+        icon: UsersGroupRoundedIcon,
+      },
+      {
+        href: "/dashboard/usuarios/administrativos",
+        label: "Usuarios Administrativos",
+        icon: ShieldUserIcon,
+      },
+    ],
+  },
+  {
+    label: "Red de aprendizaje",
+    icon: UsersGroupRoundedIcon,
+    subItems: [
+      {
+        href: "/dashboard/red-aprendizaje",
+        label: "Usuarios Nuevos",
+        icon: UserPlusIcon,
+        badge: "8",
+        badgeType: "count",
+      },
+      {
+        href: "/dashboard/red-aprendizaje/correo",
+        label: "Correo",
+        icon: LetterIcon,
+      },
+    ],
+  },
+  {
+    href: "/dashboard/contenido-repositorio",
+    label: "Contenido Repositorios",
+    icon: FolderWithFilesIcon,
+  },
+  {
+    href: "/dashboard/contenido-feed",
+    label: "Contenido Feed",
+    icon: ChatSquareIcon,
+    badge: "4",
+    badgeType: "count",
+  },
+];
+---
+
+<script is:inline>
+  (function () {
+    try {
+      var sesionRaw = localStorage.getItem("observatorio_usuario_sesion");
+      if (sesionRaw) {
+        var sesion = JSON.parse(sesionRaw);
+        var esEstudiante =
+          sesion.tipoUsuario === "estudiante" ||
+          (sesion.rol && String(sesion.rol).toLowerCase() === "estudiante");
+
+        if (esEstudiante) {
+          document.documentElement.classList.add("rol-estudiante");
+          document.documentElement.classList.remove("rol-admin");
+
+          // Redirección inmediata si se intenta acceder por URL directa a rutas de admin
+          var ruta = window.location.pathname;
+          if (
+            ruta.indexOf("/dashboard/usuarios") === 0 ||
+            ruta.indexOf("/dashboard/contenido-feed") === 0 ||
+            ruta.indexOf("/dashboard/contenido-repositorio") === 0 ||
+            ruta.indexOf("/dashboard/red-aprendizaje") === 0
+          ) {
+            window.location.replace("/dashboard");
+          }
+        } else {
+          document.documentElement.classList.add("rol-admin");
+          document.documentElement.classList.remove("rol-estudiante");
+        }
+      }
+    } catch (e) {}
+  })();
+</script>
+
+<style>
+  :global(html.rol-estudiante) #sidebar-admin-section {
+    display: none !important;
+  }
+</style>
+
+<!-- Barra Superior Móvil (solo visible en pantallas < lg) -->
+<header
+  id="sidebar-mobile-header"
+  class="lg:hidden fixed top-0 inset-x-0 h-14 bg-[#fbfbfa]/95 backdrop-blur-md border-b border-black/[0.07] z-30 flex items-center justify-between px-3.5 select-none transition-transform duration-300 shadow-sm"
+>
+  <button
+    type="button"
+    id="open-mobile-sidebar-btn"
+    class="grid h-9 w-9 place-items-center rounded-xl bg-white border border-black/10 text-[#2f3437] shadow-sm transition-all duration-200 hover:text-[#0064c1] hover:border-[#0064c1]/40 active:scale-95 cursor-pointer"
+    aria-label="Abrir menú de navegación"
+  >
+    <HamburgerMenuIcon size={20} strokeWidth={2} />
+  </button>
+
+  <a href="/dashboard" class="flex items-center justify-center no-underline">
+    <img
+      src="/Group 19.svg"
+      alt="Logo Observatorio"
+      class="h-8 w-auto object-contain"
+    />
+  </a>
+
+  <div class="flex items-center gap-2">
+    <div class="grid h-8 w-8 place-items-center">
+      <span
+        id="sidebar-mobile-avatar"
+        class="grid h-8 w-8 place-items-center rounded-xl text-white text-[0.7rem] font-bold shadow-sm"
+        style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), 0 2px 8px -1px rgba(58,138,244,0.4);"
+        aria-hidden="true"
+      >
+        UI
+      </span>
+    </div>
+
+    <!-- Botón logout móvil -->
+    <button
+      type="button"
+      id="sidebar-mobile-logout-btn"
+      class="grid h-8 w-8 place-items-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200/60 shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
+      title="Cerrar sesión"
+      aria-label="Cerrar sesión"
+    >
+      <Logout2Icon size={16} strokeWidth={2} />
+    </button>
+  </div>
+</header>
+
+<!-- Backdrop oscurecido para menú móvil -->
+<div
+  id="sidebar-mobile-backdrop"
+  class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0 data-[open=true]:opacity-100 data-[open=true]:block lg:hidden"
+  aria-hidden="true"
+>
+</div>
+
+<aside
+  id="main-sidebar"
+  transition:persist="sidebar-principal"
+  data-collapsed="false"
+  data-mobile-open="false"
+  class="group/sidebar max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:-translate-x-full max-lg:shadow-2xl max-lg:data-[mobile-open=true]:translate-x-0 lg:sticky lg:top-0 flex h-svh w-[17.5rem] lg:data-[collapsed=true]:w-[4.85rem] shrink-0 flex-col justify-between border-r border-black/[0.07] bg-[#fbfbfa]/95 backdrop-blur-md px-3 py-5 select-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-40"
+>
+  <!-- Botón toggle de escritorio (solo visible en pantallas >= lg) -->
+  <button
+    type="button"
+    id="toggle-sidebar-btn"
+    class="max-lg:hidden absolute -right-3.5 top-7 z-50 grid h-7 w-7 place-items-center rounded-full bg-white border border-black/10 text-[#787774] shadow-[0_4px_12px_-2px_rgba(0,0,0,0.12)] transition-all duration-200 hover:text-[#0064c1] hover:scale-110 hover:border-[#0064c1]/40 active:scale-95 cursor-pointer"
+    aria-label="Contraer o expandir barra lateral"
+    title="Contraer / Expandir"
+  >
+    <AltArrowLeftIcon
+      size={16}
+      strokeWidth={2.2}
+      className="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:group-data-[collapsed=true]/sidebar:rotate-180 text-[#2f3437] group-hover:text-[#0064c1]"
+    />
+  </button>
+
+  <div class="flex flex-col gap-6 overflow-hidden">
+    <!-- Encabezado con Logo ampliado y botón de cerrar en móvil -->
+    <div class="flex items-center justify-between lg:justify-center px-1 pt-1 h-12">
+      <a
+        href="/"
+        class="group/logo flex items-center justify-center no-underline overflow-hidden shrink-0"
+        aria-label="Volver al inicio"
+      >
+        <img
+          src="/Group 19.svg"
+          alt="Logo Observatorio"
+          class="h-11 w-auto max-w-[12rem] object-contain transition-transform duration-300 group-hover/logo:scale-105 shrink-0"
+        />
+      </a>
+
+      <!-- Botón cerrar en móvil -->
+      <button
+        type="button"
+        id="close-mobile-sidebar-btn"
+        class="lg:hidden grid h-8 w-8 place-items-center rounded-lg text-[#787774] hover:text-[#0a0a0a] hover:bg-black/5 active:scale-95 cursor-pointer border-none bg-transparent"
+        aria-label="Cerrar menú lateral"
+      >
+        <CloseSquareIcon size={20} strokeWidth={1.8} />
+      </button>
+    </div>
+
+    <!-- Navegación principal -->
+    <nav class="flex flex-1 flex-col gap-5 overflow-y-auto overscroll-contain pr-0.5 custom-scrollbar">
+      <!-- Sección Explorar -->
+      <div class="flex flex-col gap-1">
+        <p
+          class="m-0 mb-1 px-3 text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[#787774] whitespace-nowrap transition-opacity duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:h-0 lg:group-data-[collapsed=true]/sidebar:mb-0 lg:group-data-[collapsed=true]/sidebar:overflow-hidden"
+        >
+          Explorar
+        </p>
+        {
+          explorar.map(({ icon: Icon, ...item }) => {
+            const esActivo = active === item.label;
+            return (
+              <a
+                href={item.href}
+                title={item.label}
+                data-nav-item
+                data-nav-href={item.href}
+                data-nav-label={item.label}
+                data-astro-prefetch="hover"
+                class:list={[
+                  "nav-link-item group relative flex items-center h-11 px-1.5 rounded-2xl text-sm font-medium tracking-[-0.01em] no-underline transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
+                  esActivo
+                    ? "nav-active bg-white text-[#0064c1] font-semibold border border-white/80 shadow-[0_4px_16px_-4px_rgba(9,60,120,0.12),0_1px_2px_rgba(0,0,0,0.04)]"
+                    : "text-[#2f3437] hover:bg-black/[0.04] hover:text-[#0a0a0a] active:scale-[0.985]",
+                ]}
+              >
+                <!-- Contenedor fijo de ícono con posición fija absoluta izquierda -->
+                <div class="grid h-10 w-10 shrink-0 place-items-center">
+                  <Icon
+                    size={20}
+                    strokeWidth={esActivo ? 2 : 1.5}
+                    class:list={[
+                      "nav-icon shrink-0 transition-colors duration-200",
+                      esActivo ? "text-[#0064c1]" : "text-[#787774] group-hover:text-[#0a0a0a]",
+                    ]}
+                  />
+                </div>
+
+                <span class="truncate whitespace-nowrap ml-1.5 transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:invisible">
+                  {item.label}
+                </span>
+
+                {item.badge && item.badgeType === "new" && (
+                  <span
+                    class="ml-auto mr-1.5 px-2 py-0.5 rounded-full text-white text-[0.66rem] font-semibold leading-tight shadow-sm shrink-0 whitespace-nowrap transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:p-0 lg:group-data-[collapsed=true]/sidebar:overflow-hidden"
+                    style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), 0 2px 8px -1px rgba(58,138,244,0.45); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+                  >
+                    {item.badge}
+                  </span>
+                )}
+
+                {item.badge && item.badgeType !== "new" && (
+                  <span
+                    class:list={[
+                      "ml-auto mr-1.5 px-2 py-0.5 rounded-full text-[0.7rem] font-semibold leading-tight font-mono shrink-0 whitespace-nowrap transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:p-0 lg:group-data-[collapsed=true]/sidebar:overflow-hidden",
+                      esActivo
+                        ? "bg-[#0064c1]/10 text-[#0064c1]"
+                        : "bg-black/[0.05] text-[#787774] group-hover:bg-black/[0.08] group-hover:text-[#0a0a0a]",
+                    ]}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </a>
+            );
+          })
+        }
+      </div>
+
+      <!-- Sección Administración -->
+      <div id="sidebar-admin-section" class="flex flex-col gap-1 transition-all duration-200">
+        <p
+          class="m-0 mb-1 px-3 text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[#787774] whitespace-nowrap transition-opacity duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:h-0 lg:group-data-[collapsed=true]/sidebar:mb-0 lg:group-data-[collapsed=true]/sidebar:overflow-hidden"
+        >
+          Administración
+        </p>
+        {
+          administracion.map(({ icon: Icon, subItems, ...item }) => {
+            if (subItems && subItems.length > 0) {
+              const tieneHijoActivo = subItems.some((s) => s.label === active);
+              const esPadreActivo = active === item.label || tieneHijoActivo;
+
+              return (
+                <div
+                  class="group/collapsible flex flex-col transition-all duration-200"
+                  data-collapsible
+                  data-open={esPadreActivo ? "true" : "false"}
+                >
+                  <button
+                    type="button"
+                    class:list={[
+                      "w-full group relative flex items-center h-11 px-1.5 rounded-2xl text-sm font-medium tracking-[-0.01em] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden cursor-pointer select-none border-none text-left bg-transparent",
+                      esPadreActivo
+                        ? "bg-white/80 text-[#0064c1] font-semibold border border-white/80 shadow-[0_2px_10px_-3px_rgba(9,60,120,0.08)]"
+                        : "text-[#2f3437] hover:bg-black/[0.04] hover:text-[#0a0a0a]",
+                    ]}
+                    data-collapsible-trigger
+                  >
+                    <div class="grid h-10 w-10 shrink-0 place-items-center">
+                      <Icon
+                        size={20}
+                        strokeWidth={esPadreActivo ? 2 : 1.5}
+                        class:list={[
+                          "shrink-0 transition-colors duration-200",
+                          esPadreActivo ? "text-[#0064c1]" : "text-[#787774] group-hover:text-[#0a0a0a]",
+                        ]}
+                      />
+                    </div>
+
+                    <span class="truncate whitespace-nowrap ml-1.5 transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:invisible">
+                      {item.label}
+                    </span>
+
+                    <AltArrowDownIcon
+                      size={14}
+                      strokeWidth={2.2}
+                      className="ml-auto mr-1.5 text-[#787774] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-data-[open=true]/collapsible:rotate-180 lg:group-data-[collapsed=true]/sidebar:hidden shrink-0"
+                    />
+                  </button>
+
+                  <!-- Sub-opciones desplegables con animación suave de apertura y cierre -->
+                  <div
+                    class="collapsible-content overflow-hidden transition-[height,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:group-data-[collapsed=true]/sidebar:hidden"
+                    style={esPadreActivo ? "" : "height: 0px; opacity: 0;"}
+                  >
+                    <div class="flex flex-col gap-1 pl-2.5 pr-1 pt-1.5 pb-1 ml-4 my-0.5 border-l-2 border-slate-200/80">
+                      {subItems.map((sub) => {
+                        const esSubActivo = active === sub.label;
+                        const SubIcon = sub.icon;
+                        return (
+                          <a
+                            href={sub.href}
+                            data-nav-item
+                            data-nav-href={sub.href}
+                            data-nav-label={sub.label}
+                            data-astro-prefetch="hover"
+                            class:list={[
+                              "nav-sub-item group/sub flex items-center h-10 px-2 rounded-xl text-xs font-medium no-underline transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                              esSubActivo
+                                ? "nav-sub-active bg-white text-[#0064c1] font-bold shadow-[0_2px_8px_-2px_rgba(9,60,120,0.12)] border border-white/90"
+                                : "text-[#4b5563] hover:bg-black/[0.04] hover:text-[#0a0a0a]",
+                            ]}
+                          >
+                            {SubIcon && (
+                              <div class="grid h-6 w-6 shrink-0 place-items-center mr-2">
+                                <SubIcon
+                                  size={16}
+                                  strokeWidth={esSubActivo ? 2 : 1.5}
+                                  class:list={[
+                                    "nav-sub-icon shrink-0 transition-colors duration-200",
+                                    esSubActivo ? "text-[#0064c1]" : "text-[#787774] group-hover/sub:text-[#0a0a0a]",
+                                  ]}
+                                />
+                              </div>
+                            )}
+                            <span class="truncate">{sub.label}</span>
+
+                            {sub.badge && (
+                              <span
+                                class:list={[
+                                  "ml-auto px-2 py-0.5 rounded-full text-[0.68rem] font-bold font-mono shrink-0 transition-colors",
+                                  esSubActivo
+                                    ? "bg-[#0064c1]/10 text-[#0064c1]"
+                                    : "bg-black/[0.05] text-[#787774]",
+                                ]}
+                              >
+                                {sub.badge}
+                              </span>
+                            )}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            const esActivo = active === item.label;
+            return (
+              <a
+                href={item.href}
+                title={item.label}
+                data-nav-item
+                data-nav-href={item.href}
+                data-nav-label={item.label}
+                data-astro-prefetch="hover"
+                class:list={[
+                  "nav-link-item group relative flex items-center h-11 px-1.5 rounded-2xl text-sm font-medium tracking-[-0.01em] no-underline transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
+                  esActivo
+                    ? "nav-active bg-white text-[#0064c1] font-semibold border border-white/80 shadow-[0_4px_16px_-4px_rgba(9,60,120,0.12),0_1px_2px_rgba(0,0,0,0.04)]"
+                    : "text-[#2f3437] hover:bg-black/[0.04] hover:text-[#0a0a0a] active:scale-[0.985]",
+                ]}
+              >
+                <!-- Contenedor fijo de ícono con posición fija absoluta izquierda -->
+                <div class="grid h-10 w-10 shrink-0 place-items-center">
+                  <Icon
+                    size={20}
+                    strokeWidth={esActivo ? 2 : 1.5}
+                    class:list={[
+                      "nav-icon shrink-0 transition-colors duration-200",
+                      esActivo ? "text-[#0064c1]" : "text-[#787774] group-hover:text-[#0a0a0a]",
+                    ]}
+                  />
+                </div>
+
+                <span class="truncate whitespace-nowrap ml-1.5 transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:invisible">
+                  {item.label}
+                </span>
+
+                {item.badge && item.badgeType === "new" && (
+                  <span
+                    class="ml-auto mr-1.5 px-2 py-0.5 rounded-full text-white text-[0.66rem] font-semibold leading-tight shadow-sm shrink-0 whitespace-nowrap transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:p-0 lg:group-data-[collapsed=true]/sidebar:overflow-hidden"
+                    style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), 0 2px 8px -1px rgba(58,138,244,0.45); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+                  >
+                    {item.badge}
+                  </span>
+                )}
+
+                {item.badge && item.badgeType !== "new" && (
+                  <span
+                    class:list={[
+                      "ml-auto mr-1.5 px-2 py-0.5 rounded-full text-[0.7rem] font-semibold leading-tight font-mono shrink-0 whitespace-nowrap transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:p-0 lg:group-data-[collapsed=true]/sidebar:overflow-hidden",
+                      esActivo
+                        ? "bg-[#0064c1]/10 text-[#0064c1]"
+                        : "bg-black/[0.05] text-[#787774] group-hover:bg-black/[0.08] group-hover:text-[#0a0a0a]",
+                    ]}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </a>
+            );
+          })
+        }
+      </div>
+    </nav>
+  </div>
+
+  <!-- Tarjeta de Usuario Institucional y Botón de Logout debajo -->
+  <div class="flex flex-col gap-2 shrink-0 pt-2 border-t border-black/[0.05]">
+    <div
+      class="flex items-center gap-2 rounded-[20px] border border-white/80 bg-white/90 p-1.5 shadow-[0_10px_25px_-8px_rgba(9,60,120,0.15)] transition-all duration-300 hover:shadow-[0_14px_30px_-6px_rgba(9,60,120,0.22)] overflow-hidden"
+    >
+      <div class="grid h-10 w-10 shrink-0 place-items-center">
+        <span
+          id="sidebar-user-avatar"
+          class="grid h-9 w-9 place-items-center rounded-2xl text-white text-xs font-bold shadow-sm"
+          style="background-image: radial-gradient(120% 80% at 50% 0%, #ffffff42, #ffffff0a 36%, #ffffff00 54%), linear-gradient(#66b2ff, #4fa3ff 56%, #4a9ffb); box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5), inset 0 9px 16px -10px rgba(255,255,255,0.3), inset 0 -14px 22px -10px rgba(26,106,202,0.5), 0 4px 14px -3px rgba(58,138,244,0.4); text-shadow: 0 1px 2px rgba(18,86,175,0.32)"
+          aria-hidden="true"
+        >
+          UI
+        </span>
+      </div>
+      <div class="flex min-w-0 flex-1 flex-col pl-0.5 transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:invisible">
+        <div class="flex items-center justify-between gap-1">
+          <span id="sidebar-user-name" class="truncate text-xs font-semibold text-[#0a0a0a]"
+            >&nbsp;</span
+          >
+        </div>
+        <span id="sidebar-user-email" class="truncate text-[0.72rem] text-[#787774]"
+          >&nbsp;</span
+        >
+        <span id="sidebar-user-role" class="truncate text-[0.66rem] font-semibold text-[#0064c1] tracking-wide"
+          >&nbsp;</span
+        >
+      </div>
+    </div>
+
+    <!-- Botón de Logout situado abajo -->
+    <button
+      type="button"
+      id="btn-sidebar-logout"
+      class="group/logout relative flex items-center h-10 px-1.5 rounded-2xl text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-700 active:scale-[0.985] transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden cursor-pointer select-none border border-transparent hover:border-rose-200/60 bg-transparent w-full"
+      title="Cerrar sesión"
+      aria-label="Cerrar sesión"
+    >
+      <div class="grid h-10 w-10 shrink-0 place-items-center">
+        <Logout2Icon size={18} strokeWidth={1.8} className="text-rose-600 transition-transform duration-200 group-hover/logout:translate-x-0.5" />
+      </div>
+      <span class="truncate whitespace-nowrap ml-1.5 transition-all duration-200 lg:group-data-[collapsed=true]/sidebar:opacity-0 lg:group-data-[collapsed=true]/sidebar:w-0 lg:group-data-[collapsed=true]/sidebar:invisible">
+        Cerrar sesión
+      </span>
+    </button>
+  </div>
+</aside>
+
+<script>
+  function setupSidebar() {
+    const sidebar = document.getElementById("main-sidebar");
+    const toggleBtn = document.getElementById("toggle-sidebar-btn");
+    const adminSection = document.getElementById("sidebar-admin-section");
+    const openMobileBtn = document.getElementById("open-mobile-sidebar-btn");
+    const closeMobileBtn = document.getElementById("close-mobile-sidebar-btn");
+    const mobileBackdrop = document.getElementById("sidebar-mobile-backdrop");
+
+    // Sincronizar ruta activa de forma dinámica sin recargar el sidebar
+    const rutaActual = window.location.pathname.replace(/\/$/, "");
+    const navItems = document.querySelectorAll("[data-nav-item]");
+
+    // Funciones para abrir y cerrar el menú móvil
+    const abrirMenuMovil = () => {
+      if (sidebar) sidebar.setAttribute("data-mobile-open", "true");
+      if (mobileBackdrop) {
+        mobileBackdrop.classList.remove("hidden");
+        mobileBackdrop.setAttribute("data-open", "true");
+      }
+      document.body.style.overflow = "hidden";
+    };
+
+    const cerrarMenuMovil = () => {
+      if (sidebar) sidebar.setAttribute("data-mobile-open", "false");
+      if (mobileBackdrop) {
+        mobileBackdrop.setAttribute("data-open", "false");
+        setTimeout(() => {
+          if (mobileBackdrop.getAttribute("data-open") !== "true") {
+            mobileBackdrop.classList.add("hidden");
+          }
+        }, 300);
+      }
+      document.body.style.overflow = "";
+    };
+
+    if (openMobileBtn && !openMobileBtn.getAttribute("data-init")) {
+      openMobileBtn.setAttribute("data-init", "true");
+      openMobileBtn.addEventListener("click", abrirMenuMovil);
+    }
+
+    if (closeMobileBtn && !closeMobileBtn.getAttribute("data-init")) {
+      closeMobileBtn.setAttribute("data-init", "true");
+      closeMobileBtn.addEventListener("click", cerrarMenuMovil);
+    }
+
+    if (mobileBackdrop && !mobileBackdrop.getAttribute("data-init")) {
+      mobileBackdrop.setAttribute("data-init", "true");
+      mobileBackdrop.addEventListener("click", cerrarMenuMovil);
+    }
+
+    const sincronizarEstadoActivo = (rutaDestino: string) => {
+      const rutaLimpia = rutaDestino.replace(/\/$/, "");
+      navItems.forEach((el) => {
+        const href = (el.getAttribute("data-nav-href") || "").replace(/\/$/, "");
+        const esActivo = href === rutaLimpia || (href !== "/dashboard" && href !== "" && rutaLimpia.startsWith(href));
+
+        if (el.classList.contains("nav-link-item")) {
+          const icon = el.querySelector(".nav-icon");
+          if (esActivo) {
+            el.classList.add("bg-white", "text-[#0064c1]", "font-semibold", "border", "border-white/80", "shadow-[0_4px_16px_-4px_rgba(9,60,120,0.12),0_1px_2px_rgba(0,0,0,0.04)]");
+            el.classList.remove("text-[#2f3437]");
+            if (icon) {
+              icon.classList.add("text-[#0064c1]");
+              icon.classList.remove("text-[#787774]");
+            }
+          } else {
+            el.classList.remove("bg-white", "text-[#0064c1]", "font-semibold", "border", "border-white/80", "shadow-[0_4px_16px_-4px_rgba(9,60,120,0.12),0_1px_2px_rgba(0,0,0,0.04)]");
+            el.classList.add("text-[#2f3437]");
+            if (icon) {
+              icon.classList.remove("text-[#0064c1]");
+              icon.classList.add("text-[#787774]");
+            }
+          }
+        } else if (el.classList.contains("nav-sub-item")) {
+          const subIcon = el.querySelector(".nav-sub-icon");
+          if (esActivo) {
+            el.classList.add("bg-white", "text-[#0064c1]", "font-bold", "shadow-[0_2px_8px_-2px_rgba(9,60,120,0.12)]", "border", "border-white/90");
+            el.classList.remove("text-[#4b5563]");
+            if (subIcon) {
+              subIcon.classList.add("text-[#0064c1]");
+              subIcon.classList.remove("text-[#787774]");
+            }
+          } else {
+            el.classList.remove("bg-white", "text-[#0064c1]", "font-bold", "shadow-[0_2px_8px_-2px_rgba(9,60,120,0.12)]", "border", "border-white/90");
+            el.classList.add("text-[#4b5563]");
+            if (subIcon) {
+              subIcon.classList.remove("text-[#0064c1]");
+              subIcon.classList.add("text-[#787774]");
+            }
+          }
+        }
+      });
+    };
+
+    sincronizarEstadoActivo(rutaActual);
+
+    navItems.forEach((el) => {
+      if (!el.getAttribute("data-click-init")) {
+        el.setAttribute("data-click-init", "true");
+        el.addEventListener("click", () => {
+          const targetHref = el.getAttribute("data-nav-href");
+          if (targetHref) {
+            sincronizarEstadoActivo(targetHref);
+          }
+          if (window.innerWidth < 1024) {
+            cerrarMenuMovil();
+          }
+        });
+      }
+    });
+
+    // Cargar información del usuario autenticado si existe en sesión
+    try {
+      const sesionRaw = localStorage.getItem("observatorio_usuario_sesion");
+      if (sesionRaw) {
+        const sesion = JSON.parse(sesionRaw);
+        const nameEl = document.getElementById("sidebar-user-name");
+        const emailEl = document.getElementById("sidebar-user-email");
+        const avatarEl = document.getElementById("sidebar-user-avatar");
+        const mobileAvatarEl = document.getElementById("sidebar-mobile-avatar");
+        const roleEl = document.getElementById("sidebar-user-role");
+
+        const esEstudiante =
+          sesion.tipoUsuario === "estudiante" ||
+          (sesion.rol && String(sesion.rol).toLowerCase() === "estudiante");
+
+        if (nameEl && sesion.nombre) nameEl.textContent = sesion.nombre;
+        if (emailEl && sesion.email) emailEl.textContent = sesion.email;
+        if (roleEl) {
+          roleEl.textContent = esEstudiante
+            ? "Estudiante · Red de Aprendizaje"
+            : (sesion.rol || "Administrador");
+        }
+        if (sesion.nombre) {
+          const iniciales = sesion.nombre
+            .split(" ")
+            .filter(Boolean)
+            .map((p: string) => p[0])
+            .slice(0, 2)
+            .join("")
+            .toUpperCase();
+          const avatarTexto = iniciales || sesion.nombre.slice(0, 2).toUpperCase();
+          if (avatarEl) avatarEl.textContent = avatarTexto;
+          if (mobileAvatarEl) mobileAvatarEl.textContent = avatarTexto;
+        }
+
+        // Si es usuario estudiante, ocultar toda la sección de Administración
+        if (adminSection) {
+          if (esEstudiante) {
+            adminSection.style.display = "none";
+            adminSection.classList.add("hidden");
+          } else {
+            adminSection.style.display = "";
+            adminSection.classList.remove("hidden");
+          }
+        }
+
+        // Protección preventiva: si un estudiante intenta entrar a rutas de administración, redirigir a /dashboard
+        if (esEstudiante) {
+          const esRutaAdmin =
+            rutaActual.startsWith("/dashboard/usuarios") ||
+            rutaActual.startsWith("/dashboard/contenido-feed") ||
+            rutaActual.startsWith("/dashboard/contenido-repositorio") ||
+            rutaActual.startsWith("/dashboard/red-aprendizaje");
+
+          if (esRutaAdmin) {
+            window.location.replace("/dashboard");
+          }
+        }
+      }
+    } catch {}
+
+    if (sidebar && toggleBtn && !sidebar.getAttribute("data-initialized")) {
+      sidebar.setAttribute("data-initialized", "true");
+
+      const savedState = localStorage.getItem("sidebar-collapsed");
+      if (savedState === "true") {
+        sidebar.setAttribute("data-collapsed", "true");
+      }
+
+      toggleBtn.addEventListener("click", () => {
+        const isCollapsed = sidebar.getAttribute("data-collapsed") === "true";
+        const nextState = isCollapsed ? "false" : "true";
+        sidebar.setAttribute("data-collapsed", nextState);
+        localStorage.setItem("sidebar-collapsed", nextState);
+      });
+    }
+
+    // Manejo de acordeón animado para elementos desplegables
+    const collapsibles = document.querySelectorAll("[data-collapsible]");
+    collapsibles.forEach((collapsible) => {
+      const trigger = collapsible.querySelector("[data-collapsible-trigger]");
+      const content = collapsible.querySelector(".collapsible-content") as HTMLElement | null;
+
+      if (!trigger || !content || trigger.getAttribute("data-accordion-init")) return;
+      trigger.setAttribute("data-accordion-init", "true");
+
+      // Inicializar altura si viene abierto
+      if (collapsible.getAttribute("data-open") === "true") {
+        content.style.height = "auto";
+        content.style.opacity = "1";
+      } else {
+        content.style.height = "0px";
+        content.style.opacity = "0";
+      }
+
+      trigger.addEventListener("click", () => {
+        const isOpen = collapsible.getAttribute("data-open") === "true";
+
+        if (isOpen) {
+          // Animar cierre
+          content.style.height = `${content.scrollHeight}px`;
+          content.style.opacity = "1";
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              content.style.height = "0px";
+              content.style.opacity = "0";
+              collapsible.setAttribute("data-open", "false");
+            });
+          });
+        } else {
+          // Animar apertura
+          collapsible.setAttribute("data-open", "true");
+          content.style.height = `${content.scrollHeight}px`;
+          content.style.opacity = "1";
+
+          const handleTransitionEnd = (e: TransitionEvent) => {
+            if (e.propertyName === "height" && collapsible.getAttribute("data-open") === "true") {
+              content.style.height = "auto";
+              content.removeEventListener("transitionend", handleTransitionEnd);
+            }
+          };
+          content.addEventListener("transitionend", handleTransitionEnd);
+        }
+      });
+    });
+
+    // Manejo de Cierre de Sesión (Logout)
+    const btnLogout = document.getElementById("btn-sidebar-logout");
+    const btnMobileLogout = document.getElementById("sidebar-mobile-logout-btn");
+
+    const ejecutarLogout = async (e: Event) => {
+      e.preventDefault();
+      try {
+        await fetch("/api/auth/logout", { method: "POST" });
+      } catch {}
+      localStorage.removeItem("observatorio_usuario_sesion");
+      document.documentElement.classList.remove("rol-estudiante", "rol-admin");
+      window.location.href = "/";
+    };
+
+
+    if (btnLogout && !btnLogout.getAttribute("data-logout-init")) {
+      btnLogout.setAttribute("data-logout-init", "true");
+      btnLogout.addEventListener("click", ejecutarLogout);
+    }
+
+    if (btnMobileLogout && !btnMobileLogout.getAttribute("data-logout-init")) {
+      btnMobileLogout.setAttribute("data-logout-init", "true");
+      btnMobileLogout.addEventListener("click", ejecutarLogout);
+    }
+  }
+
+  setupSidebar();
+  document.addEventListener("astro:page-load", setupSidebar);
+</script>

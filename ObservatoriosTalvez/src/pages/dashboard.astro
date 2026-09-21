@@ -1,0 +1,33 @@
+---
+export const prerender = false;
+
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Sidebar from "../components/Sidebar.astro";
+import { ContenidoDashboard } from "../modules/dashboard";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Panel de control del Observatorio de Responsabilidad Social y Sostenibilidad"
+    />
+    <title>Observatorio · Dashboard</title>
+    <ClientRouter />
+  </head>
+  <body class="bg-[#fbfbfa] text-[#0a0a0a]">
+    <div class="flex min-h-svh w-full">
+      <!-- Barra lateral de navegación -->
+      <Sidebar active="Inicio" />
+
+      <!-- Contenido principal orquestado desde el dominio Dashboard -->
+      <main class="flex-1 flex flex-col min-w-0">
+        <ContenidoDashboard />
+      </main>
+    </div>
+  </body>
+</html>
